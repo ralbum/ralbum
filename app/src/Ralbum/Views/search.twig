@@ -1,0 +1,58 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+	{% embed "header.twig" %}
+	{% endembed %}
+
+	<div id="navigation">
+
+		{% if total_nr_images > 0 %}
+			<p class="search-count">Found&nbsp;{{ total_nr_images }} image{% if images|length != 1 %}s{% endif %}</p>
+		{% else %}
+			<p class="search-count">
+				No images found
+				{% if index_count == 0 %}
+					Check if cron is enabled.
+				{% endif %}
+			</p>
+		{% endif %}
+
+		{% if other_files|length > 0 %}
+			<div id="search-files-header"><p class="search-count action">Found {{ other_files|length }} file{% if  other_files|length != 1 %}s{% endif %}</p></div>
+			<div id="search-files-container">
+				{% if other_files|length > 0 %}
+					<div class="other-files">
+						{% for other_file in other_files %}
+							<div class="other-file">
+								<a class="file-name" href="{{ other_file.originalUrl }}">{{ other_file.name }}</a>
+								<a class="download-file" href="{{ other_file.originalUrl }}"></a>
+								{% if other_file.playable %}
+									<a class="play-video" href="#"  data-url="{{ other_file.playUrl }}"></a>
+								{% endif %}
+							</div>
+						{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+		{% endif %}
+
+
+
+	</div>
+	<div id="content">
+
+		{% if total_nr_images > 0 %}
+
+			{% set vars = {'origin': 'search'} %}
+			{% embed "images.twig" with vars %}
+			{% endembed %}
+
+		{% endif %}
+
+		{% embed "pagination.twig" %}
+		{% endembed %}
+
+	</div>
+
+{% endblock %}

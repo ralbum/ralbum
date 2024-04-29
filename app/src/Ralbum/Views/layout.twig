@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="nl" xml:lang="nl">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Photos</title>
+	<meta name="viewport" content="initial-scale=1.0, width=device-width, user-scalable=yes" />
+	<script src="{{ base_url }}/assets/js/jquery-3.5.0.min.js"></script>
+	<script type="text/javascript" src="{{ base_url }}/assets/js/jquery.touchSwipe.js"></script>
+	<link rel="stylesheet" href="{{ base_url }}/assets/css/style.css?v={{ version_ts }}">
+	<script type="text/javascript" src="{{ base_url }}/assets/js/app.js?v={{ version_ts }}"></script>
+	<link rel="apple-touch-icon" sizes="180x180" href="{{ base_url }}/assets/images/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ base_url }}/assets/images/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="{{ base_url }}/assets/images/favicon/favicon-16x16.png">
+</head>
+<body id="body">
+	<div id="page">
+		{% block content %}
+		{% endblock %}
+
+	</div>
+	<script type="text/javascript">
+		window.appRoot = "{{ base_url }}";
+		window.appRootRalbum = window.appRoot + '/ralbum';
+		window.fullSize = "{{ full_size }}";
+	</script>
+	<div id="overlay">
+
+		<div id="container">
+			<div id="image-nav">
+				<div id="image-nav-size" title="Change size" {% if full_size %} class="active" {% endif %}>
+				</div>
+				<div id="image-nav-info" title="Information">
+				</div>
+				<div id="image-nav-rotate" title="Rotate the image, use CTRL/CMD click to rotate counter clockwise">
+				</div>
+				<div id="image-nav-prev" title="Previous image">
+				</div>
+				<div id="image-nav-next" title="Next image">
+				</div>
+				<div id="image-nav-close" title="Close">
+				</div>
+			</div>
+			<div id="slider">
+				<img src="{{ base_url }}/assets/images/loading.gif" alt="Loading" />
+			</div>
+			<div id="info">
+				<div id="info_close"></div>
+				<div id="info_inner">
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="video_overlay" style="display: none;">
+		<div id="video-nav">
+			<div id="video-nav-close" title="Close">
+			</div>
+		</div>
+		<div id="video_overlay_container">
+			<div id="video_container">
+
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

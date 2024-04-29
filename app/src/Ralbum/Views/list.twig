@@ -1,0 +1,93 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+	{% embed "header.twig" %}
+	{% endembed %}
+
+	<div id="navigation">
+		<div class="folders">
+			{% if folder_up is defined %}
+				<a class="folder up" title="Parent folder" href="{{ folder_up.url }}"> <img width="16" height="16" src="{{ base_url }}/assets/images/svg/prev.svg" alt="Parent folder"/></a>
+			{% endif %}
+
+			{% for folder in folders %}
+				<a class="folder" href="{{ folder.url }}">{{ folder.name }}</a>
+			{% endfor %}
+		</div>
+		<div class="other-files">
+			{% if other_files|length > 0 %}
+				<p class="other-file-header">Files in this folder</p>
+				<div class="other-files">
+					{% for other_file in other_files %}
+						<div class="other-file">
+							<a class="file-name" href="{{ other_file.originalUrl }}">{{ other_file.name }}</a>
+							<a class="download-file" href="{{ other_file.originalUrl }}"></a>
+							{% if other_file.playable %}
+								<a class="play-video" href="#"  data-url="{{ other_file.playUrl }}"></a>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div id="content">
+		<p id="information"></p>
+
+		{% if images|length > 0 %}
+			<div id="tools" style="width:100%">
+				<div id="folder_info">
+					{{ images|length}} image{% if images|length != 1%}s{% endif %}
+				</div>
+				<div id="sort_button">
+					Sort 	↓↑
+				</div>
+				<div id="sort_links">
+					<a href="?order=filename&direction=asc" {% if session.order=="filename" and session.direction=="asc" %}class="active"{% endif %}>Filename A-Z</a>
+					<a href="?order=filename&direction=desc" {% if session.order=="filename" and session.direction=="desc" %}class="active"{% endif %}>Filename Z-A</a>
+					<a href="?order=date_taken&direction=asc" {% if session.order=="date_taken" and session.direction=="asc" %}class="active"{% endif %}>Newest first</a>
+					<a href="?order=date_taken&direction=desc" {% if session.order=="date_taken" and session.direction=="desc" %}class="active"{% endif %}>Oldest first</a>
+				</div>
+			</div>
+		
+			{% embed "images.twig" %}
+			{% endembed %}
+
+			{% embed "pagination.twig" %}
+			{% endembed %}
+		{% else %}
+
+			{% if latest_images|length > 0 %}
+				<h1>Latest images</h1>
+				{% embed "images.twig" with {'images': latest_images} %}
+				{% endembed %}
+			{% endif %}
+
+			{% if on_this_day|length > 0 %}
+				<div id="this_day">
+					<h1>On this day</h1>
+
+					{% for year,yearImages in on_this_day %}
+						<div class="this_day_year">
+							<h2>{{ year }}</h2>
+							{% embed "images.twig" with {'images': yearImages, 'source' : 'on_this_day'} %}
+							{% endembed %}
+							</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+
+			{% if random_images	|length > 0 %}
+				<div id="random_images">
+					<h1>Random images</h1>
+					{% embed "images.twig" with {'images': random_images} %}
+					{% endembed %}
+				</div>	
+			{% endif %}
+
+		{% endif %}
+
+	</div>
+
+{% endblock %}

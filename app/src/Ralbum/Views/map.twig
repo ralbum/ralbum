@@ -1,0 +1,209 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+
+	{% embed "header.twig" %}
+	{% endembed %}
+
+	<style type="text/css">
+
+		#map {
+			width: 100%;
+			height: 500px;
+		}
+
+		#map_container {
+			grid-column-start: 1;
+			grid-row-start: 3;
+			grid-row-end: 5;
+		}
+
+		#content {
+			min-height: 500px;
+			margin: 0; padding: 0;
+		}
+		#content img {
+			max-height: 500px;
+			max-width: 100%;
+		}
+
+		#map_image_container {
+			height: 500px;
+		}
+
+		#map_image_info {
+			background: #444444;
+			color: #FFF;
+		}
+
+		#page {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+		}
+
+		@media screen and (max-width:800px) {
+
+			#page {
+				display: block;
+			}
+
+			#map {
+				width: 100%;
+			}
+		}
+
+		@media screen and (max-width:400px) {
+
+			#map {
+				width: 400px;
+				float: none;
+			}
+		}
+
+	</style>
+
+	<script src="https://cdn.jsdelivr.net/npm/ol@v7.2.2/dist/ol.js"></script>
+
+	<div id="map_container">
+		<div id="map" class="map"></div>
+	</div>
+	<div id="content">
+		<div id="map_image_container">
+			<img src="" id="map_image" style=""/>
+		</div>
+		<div id="map_image_info">
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		// create map
+
+		function showImageInfoMap(imageUrl)
+		{
+			$('#map_image_info').html('');
+
+			$.ajax('{{ base_url_ralbum }}' + '/info/' + imageUrl).done(function(content) {
+
+				var result = JSON.parse(content);
+
+				if (result.result == true) {
+					var responseHtml = $('<table/>');
+					responseHtml.append('<tr><td>File</td><td>' + result.file + '</td></tr>');
+
+					var data = result.data;
+
+					if (data) {
+						$.each(data, function(key, val)
+						{
+							var items = [];
+
+							if (key.indexOf('Date') !== -1 && val != false) {
+								dateObj = new Date(val * 1000);
+								val = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString();
+							}
+
+							if (key.indexOf('GPS') !== -1 && val != false && val.length > 0) {
+								val = '<a target="_blank" href="https://maps.google.nl/?q=' + val.join(', ') +'">' + val.join(', ') +'</a>'
+							}
+
+							if (key.indexOf('Keywords') !== -1 && val != false && val.length > 0) {
+								val = val.join(', ');
+							}
+
+							if (key.indexOf('File Size') !== -1 && val > 0) {
+								return;
+							}
+
+							items.push('<td>' + key + '</td>');
+							items.push('<td>' + (val == false ? '' : val) + '</td>');
+							responseHtml.append($('<tr/>', {html: items.join('')}));
+						});
+					}
+				}
+
+				$('#map_image_info').append(responseHtml);
+
+			}).fail(function()
+			{
+				console.log('Request for fetching info failed');
+			});
+
+		}
+
+		var layerListeners = {
+			featureclick: function(e) {
+				log(e.object.name + " says: " + e.feature.id + " clicked.");
+				return false;
+			},
+			nofeatureclick: function(e) {
+				log(e.object.name + " says: No feature clicked.");
+			}
+		};
+
+		var map = new ol.Map({
+			target: 'map',
+			layers: [
+				new ol.layer.Tile({
+					source: new ol.source.OSM()
+				})
+			],
+			view: new ol.View({
+				center: ol.proj.fromLonLat([4.35247, 50.84673]),
+				zoom: 4
+			})
+		});
+
+		var features = [];
+
+		var Markers = [
+			{% for key, image in images %}
+				{lat: {{ image.metadata.lat }}, lng: {{ image.metadata.long }}, img: "{{ key }}" },
+			{% endfor %}
+		];
+
+		for (var i = 0; i < Markers.length; i++) {
+			var item = Markers[i];
+
+			var iconFeature = new ol.Feature({
+				geometry: new ol.geom.Point(ol.proj.fromLonLat([item.lng, item.lat])),
+				image_url: item.img,
+			});
+
+			var iconStyle = new ol.style.Style({
+				image: new ol.style.Icon({
+					anchor: [0.5, 1],
+					src: "{{ base_url }}/assets/images/marker.png"
+				})
+			});
+
+			iconFeature.setStyle(iconStyle);
+			features.push(iconFeature);
+		}
+
+		var vectorSource = new ol.source.Vector({
+			features: features
+		});
+
+		var vectorLayer = new ol.layer.Vector({
+			source: vectorSource
+		});
+		map.addLayer(vectorLayer);
+
+		map.on('click', function(evt) {
+			var feature = map.forEachFeatureAtPixel(evt.pixel,
+				function (feature) {
+					return feature;
+				}
+			);
+
+			if (feature) {
+				document.getElementById('map_image').setAttribute('src', '{{ base_url_ralbum }}' + '/detail' + feature.values_.image_url);
+				document.getElementById('map_image').setAttribute('style.display', 'block');
+				showImageInfoMap(feature.values_.image_url);
+			}
+		});
+
+	</script>
+
+
+{% endblock %}

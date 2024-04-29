@@ -1,0 +1,15 @@
+{
+  	"name" : "ralbum/ralbum",
+	"license": "LGPL-2.1-only",
+	"autoload": {
+	  "psr-4": {
+		"Ralbum\\": "src/Ralbum"
+	  }
+	},
+    "require": {
+	  	"php": ">=5.4",
+		"vakata/image": "2.4.0",
+	  	"twig/twig": "^3.5",
+	  	"dfridrich/php-mime-type" : "^3"
+    }
+}

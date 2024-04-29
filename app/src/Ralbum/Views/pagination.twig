@@ -1,0 +1,23 @@
+{% if pagination.getNumberOfPages > 1 %}
+	<ul id="pagination">
+		{% if pagination.currentPage != 1 %}
+			<li>
+				<a href="{{ pagination.getBaseUrl }}{% if '?' in pagination.getBaseUrl %}&amp;{% else %}?{% endif %}page={{ pagination.currentPage-1 }}">&larr; Previous</a>
+			</li>
+		{% else %}
+			<li class="inactive">
+				<a href="#">&larr; Previous</a>
+			</li>
+		{% endif %}
+		{% if pagination.currentPage != pagination.getNumberOfPages %}
+			<li class="next">
+				<a href="{{ pagination.getBaseUrl }}{% if '?' in pagination.getBaseUrl %}&amp;{% else %}?{% endif %}page={{ pagination.currentPage+1 }}">Next &rarr;</a>
+			</li>
+		{% else %}
+			<li class="next inactive">
+				<a href="#">Next &rarr;</a>
+			</li>
+		{% endif %}
+
+	</ul>
+{% endif %}

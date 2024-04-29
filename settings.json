@@ -1,0 +1,16 @@
+{
+    "image_base_dir": "/var/www/testfoto",
+    "thumbnail_width": 200,
+    "thumbnail_height": 130,
+    "detail_width": 1024,
+    "full_size_by_default": false,
+    "order_by_date_taken": true,
+    "auto_rotate": true,
+    "supported_extensions": [
+        "jpg",
+        "jpeg",
+        "gif",
+        "png"
+    ],
+    "images_per_page": 200
+}

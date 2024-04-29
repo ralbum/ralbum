@@ -1,0 +1,63 @@
+<div id="header">
+	<ol id="breadcrumb">
+		<li><a {% if breadcrumb_parts|length == 0 %} class="single" {% endif %} href="{{ base_url }}/"><img alt="home" width="20px" height="20px" src="{{ base_url }}/assets/images/svg/home.svg" /></a></li>
+		{% for breadcrumb_part in breadcrumb_parts %}
+			<li><a {% if breadcrumb_part.isLast == true %} class="last" {% endif %} href="{{ breadcrumb_part.path }}">{{ breadcrumb_part.title }}</a></li>
+		{% endfor %}
+	</ol>
+	<div id="search_activate">
+
+	</div>
+	<div id="search" {% if q|length > 0 %} class="search_active"{% endif %}>
+		<form method="GET" action="{{ base_url_ralbum }}/search">
+			<span class="search_options_open {% if filter_active %} filter_active{% endif %}"><span>&#9776;</span></span>
+			<input type="text" id="q" name="q" placeholder="Search for images ..." value="{{ q }}" {% if q|length > 0 %} class="search_active"{% endif %}/>
+			<input type="submit" id="submitbutton" name="submitbutton" value="Search" />
+			<div id="search_options">
+				<div class="search_option">
+					<input type="checkbox" id="limit_to_keyword_search" name="limit_to_keyword_search" {% if limit_to_keyword_search %}checked="checked"{% endif %}/>
+					<label for="limit_to_keyword_search">Limit text-search by keyword</label>
+				</div>
+				<div class="search_option">
+					<select name="camera">
+						<option value=""> - camera - </option>
+						{% for key, cam in unique_cams %}
+							<option value="{{ key }}" {% if camera == key %}selected="selected"{% endif %} >{{ cam }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="search_option">
+					<select name="lens">
+						<option value=""> - lens - </option>
+						{% for key, lns in unique_lenses %}
+							<option value="{{ key }}" {% if lens == key %}selected="selected"{% endif %} >{{ lns }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="search_option">
+					<select name="year" class="date">
+						<option value=""> - year - </option>
+						{% for key, yr in years %}
+							<option value="{{ key }}" {% if year == key %}selected="selected"{% endif %} >{{ yr }}</option>
+						{% endfor %}
+					</select>
+					<select name="month" class="date">
+						<option value=""> - month - </option>
+						{% for key, mnth in months %}
+							<option value="{{ key }}" {% if month == key %}selected="selected"{% endif %} >{{ mnth }}</option>
+						{% endfor %}
+					</select>
+					<select name="day" class="date">
+						<option value=""> - day - </option>
+						{% for key, dy in days %}
+							<option value="{{ key }}" {% if day == key %}selected="selected"{% endif %} >{{ dy }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="search_option">
+					<a href="{{ base_url_ralbum }}/map_view">Search for images on a map</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

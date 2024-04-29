@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="520" height="520" xmlns="http://www.w3.org/2000/svg" >
+	<rect width="100%" height="100%" fill="#222"/>
+
+	<path d="M260 120 L260 300" fill="none" stroke="#ddd" stroke-width="33"/>
+	<path d="M180 230 L271 322" fill="none" stroke="#ddd" stroke-width="32"/>
+	<path d="M340 230 L249 322" fill="none" stroke="#ddd" stroke-width="32"/>
+	<path d="M170 360 L360 360" fill="none" stroke="#ddd" stroke-width="12"/>
+
+</svg>

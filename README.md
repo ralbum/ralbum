@@ -39,7 +39,7 @@ You can then run this command to run ralbum, replace '/var/www/testfoto' with th
         -v /var/www/testfoto:/var/data \
         -v /var/ralbum/cache/live:/var/www/html/cache \
         -v /var/ralbum/data/live:/var/www/html/data \
-        -d -p 1247:80 ralbum
+        -d -p 1247:80 ralbum/ralbum
 ```
 
 If you have your docker container running you can use that as-is but it's better to have that running on it's on own host/domain (and without the port number), here is the relevant apache configuration for your VirtualHost, again, replace the portnumber if you wish.

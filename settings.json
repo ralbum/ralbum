@@ -1,5 +1,5 @@
 {
-    "image_base_dir": "/var/www/testfoto",
+    "image_base_dir": "/var/data",
     "thumbnail_width": 200,
     "thumbnail_height": 130,
     "detail_width": 1024,

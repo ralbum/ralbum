@@ -28,11 +28,8 @@ Images with geographical information embedded in the EXIF can be displayed on a 
 You can install this using Docker or on your base system, Docker is the easiest way because you won't have to check for certain software compatibility. You _do_ need to install Docker of course. In the future I'm probably going to add the image on docker-hub to you can donwload it without building.
 
 ### Installation using Docker
-The `build` folder contains a Dockerfile, instructions for installing:
-Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
-
-```bash
-docker build --no-cache -t ralbum .
+```
+docker pull ralbum/ralbum
 ```
 
 You can then run this command to run ralbum, replace '/var/www/testfoto' with the image directory on your server. The two other volumes (the lines with the `-v`) are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder.
@@ -44,6 +41,15 @@ You can then run this command to run ralbum, replace '/var/www/testfoto' with th
         -v /var/ralbum/data/live:/var/www/html/data \
         -d -p 1247:80 ralbum
 ```
+
+## That's it for the installation, if you want to you can also build it yourself using:
+The `build` folder contains a Dockerfile, instructions for installing:
+Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
+
+```bash
+docker build --no-cache -t ralbum .
+```
+
 
 If you have your docker container running you can use that as-is but it's better to have that running on it's on own host/domain (and without the port number), here is the relevant apache configuration for your VirtualHost, again, replace the portnumber if you wish.
 

@@ -42,15 +42,6 @@ You can then run this command to run ralbum, replace '/var/www/testfoto' with th
         -d -p 1247:80 ralbum
 ```
 
-## That's it for the installation, if you want to you can also build it yourself using:
-The `build` folder contains a Dockerfile, instructions for installing:
-Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
-
-```bash
-docker build --no-cache -t ralbum .
-```
-
-
 If you have your docker container running you can use that as-is but it's better to have that running on it's on own host/domain (and without the port number), here is the relevant apache configuration for your VirtualHost, again, replace the portnumber if you wish.
 
 ```bash
@@ -64,6 +55,14 @@ If you want to use the search feature you need to run a cronjob. Running the cro
 
 ```bash
 /usr/bin/docker exec ralbum_live /var/www/html/ralbum_cron.sh
+```
+
+That's it for the installation, if you want to you can also build it yourself using:
+The `build` folder contains a Dockerfile, instructions for installing:
+Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
+
+```bash
+docker build --no-cache -t ralbum .
 ```
 
 

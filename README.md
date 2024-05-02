@@ -15,6 +15,7 @@ You can choose to browse the original images or view a re-sized version of the i
 This is convenient when you are browsing on a slow connection. 
 You can control the size of these images in settings.json. 
 These images are created on the fly or you can use the cron.php to create these (and the thumbnails) all at once.
+If you leave the main folder of your images empty, you will see a list of recent images and a list of images of the same date in history and a list of random images.
 
 ### Search
 You can search (if you have cron enabled, see below) for images using the search box on the top right. You can enter multiple words to further

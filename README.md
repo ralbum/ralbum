@@ -15,6 +15,7 @@ You can choose to browse the original images or view a re-sized version of the i
 This is convenient when you are browsing on a slow connection. 
 You can control the size of these images in settings.json. 
 These images are created on the fly or you can use the cron.php to create these (and the thumbnails) all at once.
+If you leave the main folder of your images empty, you will see a list of recent images and a list of images of the same date in history and a list of random images.
 
 ### Search
 You can search (if you have cron enabled, see below) for images using the search box on the top right. You can enter multiple words to further
@@ -28,11 +29,8 @@ Images with geographical information embedded in the EXIF can be displayed on a 
 You can install this using Docker or on your base system, Docker is the easiest way because you won't have to check for certain software compatibility. You _do_ need to install Docker of course. In the future I'm probably going to add the image on docker-hub to you can donwload it without building.
 
 ### Installation using Docker
-The `build` folder contains a Dockerfile, instructions for installing:
-Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
-
-```bash
-docker build --no-cache -t ralbum .
+```
+docker pull ralbum/ralbum
 ```
 
 You can then run this command to run ralbum, replace '/var/www/testfoto' with the image directory on your server. The two other volumes (the lines with the `-v`) are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder.
@@ -42,7 +40,7 @@ You can then run this command to run ralbum, replace '/var/www/testfoto' with th
         -v /var/www/testfoto:/var/data \
         -v /var/ralbum/cache/live:/var/www/html/cache \
         -v /var/ralbum/data/live:/var/www/html/data \
-        -d -p 1247:80 ralbum
+        -d -p 1247:80 ralbum/ralbum
 ```
 
 If you have your docker container running you can use that as-is but it's better to have that running on it's on own host/domain (and without the port number), here is the relevant apache configuration for your VirtualHost, again, replace the portnumber if you wish.
@@ -58,6 +56,14 @@ If you want to use the search feature you need to run a cronjob. Running the cro
 
 ```bash
 /usr/bin/docker exec ralbum_live /var/www/html/ralbum_cron.sh
+```
+
+That's it for the installation, if you want to you can also build it yourself using:
+The `build` folder contains a Dockerfile, instructions for installing:
+Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
+
+```bash
+docker build --no-cache -t ralbum .
 ```
 
 

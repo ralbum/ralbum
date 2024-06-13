@@ -115,7 +115,7 @@ class Image extends File
             }
         } catch (\Exception $e) {
             \Ralbum\Log::addEntry('error',
-                'Could create thumbnail from image: ' . $this->getRelativeLocation() . '. ' . $e->getMessage());
+                'Could not create thumbnail from image: ' . $this->getRelativeLocation() . '. ' . $e->getMessage());
             return false;
         }
 
@@ -205,7 +205,7 @@ class Image extends File
             }
         } catch (\Exception $e) {
             \Ralbum\Log::addEntry('error',
-                'Could create detail image from image: ' . $this->getRelativeLocation() . '. ' . $e->getMessage());
+                'Could not create detail image from image: ' . $this->getRelativeLocation() . '. ' . $e->getMessage());
             return false;
         }
 

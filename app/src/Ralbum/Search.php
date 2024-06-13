@@ -25,7 +25,7 @@ class Search
 
         $this->indexFile = $indexFile;
 
-        if (!file_exists($this->indexFile)) {
+        if (!file_exists($this->indexFile) || strlen(file_get_contents($this->indexFile)) == 0) {
             if (!file_put_contents($this->indexFile, json_encode([], JSON_PRETTY_PRINT))) {
                 throw new \Exception('Could not create index file: ' . $this->indexFile);
             }

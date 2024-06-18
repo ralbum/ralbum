@@ -6,8 +6,10 @@ use Ralbum\Model\Image;
 
 class Search
 {
-    protected $index = null;
+    protected $index = [];
     protected $indexFile = null;
+    protected $db = null;
+    protected $useDb = false;
 
     public $filters = [
         'camera' => 'model',
@@ -25,6 +27,22 @@ class Search
 
         $this->indexFile = $indexFile;
 
+        if ($this->useDb) {
+            $this->db = new \SQLite3(BASE_DIR . '/data/database.db');
+            $this->createTable();
+
+            if (isset($_GET['debug_database'])) {
+                echo '<pre>';
+                $statement = $this->db->prepare('SELECT * FROM images LIMIT 100');
+                $result = $statement->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                    var_dump($row);
+                }
+                die();
+            }
+            return;
+        }
+
         if (!file_exists($this->indexFile) || strlen(file_get_contents($this->indexFile)) == 0) {
             if (!file_put_contents($this->indexFile, json_encode([], JSON_PRETTY_PRINT))) {
                 throw new \Exception('Could not create index file: ' . $this->indexFile);
@@ -36,13 +54,28 @@ class Search
         }
     }
 
+    function createTable()
+    {
+        $query = "CREATE TABLE IF NOT EXISTS files (file_path STRING, search_data STRING, file_type STRING, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)";
+        $this->db->exec($query);
+    }
+
     function resetIndex()
     {
+        if ($this->useDb) {
+            $this->db->query('DROP TABLE files');
+            $this->createTable();
+            return;
+        }
         $this->index = [];
     }
 
     function loadIndex()
     {
+        if ($this->useDb) {
+            return true;
+        }
+
         $index = json_decode(file_get_contents($this->indexFile), true);
 
         if ($index === false) {
@@ -50,16 +83,57 @@ class Search
         }
 
         $this->index = $index;
-
         return true;
-
     }
 
     function setEntry($key, $value, $type, $metadata = [])
     {
-        $data = array_merge(['search_data' => $value, 'type' => $type, 'metadata' => $metadata]);
+        $data = ['search_data' => $value, 'type' => $type, 'metadata' => $metadata];
+
+        if ($this->useDb) {
+
+            $dataKeys = [
+                'file_path',
+                'search_data',
+                'file_type',
+                // metadata
+                'shutterspeed',
+                'iso',
+                'date_taken',
+                'make',
+                'model',
+                'aperture',
+                'focal_length',
+                'lens',
+                'lat',
+                'long',
+            ];
+
+            $dataPlaceHolders = [];
+            foreach ($dataKeys as $i => $val) {
+                $dataPlaceHolders[$i] = ':' . $val;
+            }
+
+            $statement = $this->db->prepare('INSERT INTO files (' . implode(', ', $dataKeys) . ') VALUES (' .  implode(', ', $dataPlaceHolders) . ' )');
+
+            $statement->bindValue(':file_path', $key);
+            $statement->bindValue(':search_data', $value);
+            $statement->bindValue(':file_type', $type);
+
+            foreach ($dataKeys as $val) {
+                if (!in_array($val, ['file_path', 'search_data', 'file_type'])) {
+                    if (isset($metadata[$val])) {
+                        $statement->bindValue(':'. $val, $metadata[$val]);
+                    }
+                }
+            }
+
+            $statement->execute();
+            return;
+        }
 
         $this->index[$key] = $data;
+
     }
 
     public function hasFilter()
@@ -117,6 +191,49 @@ class Search
         $words = explode(' ', trim($q));
         $words = array_filter($words,'strlen');
 
+        if ($this->useDb) {
+            $query = 'SELECT * FROM files WHERE 1=1 ';
+
+            if (count($words) > 0) {
+                foreach ($words as $i => $word) {
+                    $query .= ' AND search_data LIKE :word' . $i . ' ';
+                }
+            }
+
+            foreach ($this->filters as $requestParam => $filter) {
+                if ($filter == 'date_taken') {
+                    //TODO
+                } else {
+                    if (isset($_REQUEST[$requestParam]) && strlen($_REQUEST[$requestParam]) > 0) {
+                        $query .= ' AND ' . $requestParam . ' LIKE "%' . $_REQUEST[$requestParam] . '%"';
+                    }
+                }
+
+            }
+
+            $perPage = 100;
+            $page = max(1, isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1);
+            $offset = ($page-1)*$perPage;
+            $query .= ' ORDER BY date_taken DESC LIMIT ' . $perPage . ' OFFSET ' . $offset;
+//            var_dump($query); die();
+            $statement = $this->db->prepare($query);
+//            var_dump($this->db->lastErrorMsg());
+
+            if (count($words) > 0) {
+                foreach ($words as $i => $word) {
+                    $statement->bindValue(':word' . $i, '%' . $word . '%');
+                }
+            }
+
+            $result = $statement->execute();
+
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $results[$row['file_path']] = $row;
+            }
+
+            return $results;
+        }
+
         $sortedIndex = $this->index;
 
         uasort($sortedIndex, [$this, 'sortByDateTaken']);
@@ -171,6 +288,9 @@ class Search
 
     function save()
     {
+        if ($this->useDb) {
+            return;
+        }
         file_put_contents($this->indexFile, json_encode($this->index, JSON_PRETTY_PRINT));
     }
 
@@ -197,6 +317,17 @@ class Search
     function getLatestImages()
     {
         $limit = \Ralbum\Setting::get('latest_images_count');
+
+        if ($this->useDb) {
+            $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" ORDER BY date_taken DESC LIMIT '. intval($limit));
+            $result = $statement->execute();
+            $return = [];
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $return[] = new Image($row['file_path']);
+            }
+            return $return;
+        }
+
         $sortedIndex = $this->index;
 
         $sortedIndex = array_filter($sortedIndex, function($element) {
@@ -217,12 +348,34 @@ class Search
         }
 
         return $return;
-
     }
 
     function getOnThisDay()
     {
         $images = [];
+
+        if ($this->useDb) {
+
+            for ($year = date('Y'); $year > date('Y')-20; $year--) {
+                $month = date('m');
+                $day = date('d');
+
+                $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND date_taken LIKE "' . $year  . '-' . $month . '-' . $day . '%" ORDER BY date_taken DESC LIMIT 50');
+                $result = $statement->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+
+                    $image = new Image($row['file_path']);
+                    if (file_exists($image->getDetailPath()) && file_exists($image->getThumbnailPath())) {
+                        $images[$year][] = $image;
+                    }
+                }
+            }
+
+            krsort($images);
+            return $images;
+        }
+
+
         foreach ($this->index as $key => $item) {
 
             if (!isset($item['metadata']) || !isset($item['metadata']['date_taken'])) {
@@ -242,12 +395,30 @@ class Search
     }
     
     function getRandom() {
+
+        $max = \Ralbum\Setting::get('random_images_count');
+
+        if ($this->useDb) {
+
+            $images = [];
+            $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" ORDER BY RANDOM() LIMIT ' . intval($max));
+            $result = $statement->execute();
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $image = new Image($row['file_path']);
+                if (file_exists($image->getDetailPath()) && file_exists($image->getThumbnailPath())) {
+                    $images[] = $image;
+                }
+            }
+
+            return $images;
+        }
+
+
         $keys = array_keys($this->index);
         shuffle($keys);
         $slice = array_slice($keys, 0, 20);
         $images = [];
         $i = 0;
-        $max = \Ralbum\Setting::get('random_images_count');
         foreach ($slice as $key) {
             $image = new Image($key);
             // just to be sure we don't load any images on the homepage that need to be generated

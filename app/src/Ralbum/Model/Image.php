@@ -126,28 +126,21 @@ class Image extends File
     {
         $metadata = $this->getMetadata();
 
-        $data = basename($this->path);
-
-        if ($metadata && $metadata->getKeywords()) {
-            $data .= ' ' . implode(' ', (array)$metadata->getKeywords());
-        }
-
-        $meta = $this->getMetadata();
-
-        $metadata = [
-            'date_taken' => $meta->getDateTaken(),
-            'make' => $meta->getMake(),
-            'model' => $meta->getModel(),
-            'aperture' => $meta->getAperture(),
-            'shutterspeed' => $meta->getShutterSpeed(),
-            'iso' => $meta->getIso(),
-            'focal_length' => $meta->getFocalLength(),
-            'lens' => $meta->getLens(),
-            'lat' => $meta->getGpsData() ? $meta->getGpsData()[0] : null,
-            'long' => $meta->getGpsData() ? $meta->getGpsData()[1] : null,
+        $metadataArray = [
+            'date_taken' => date('Y-m-d H:i:s', $metadata->getDateTaken()),
+            'make' => $metadata->getMake(),
+            'model' => $metadata->getModel(),
+            'aperture' => $metadata->getAperture(),
+            'shutterspeed' => $metadata->getShutterSpeed(),
+            'iso' => $metadata->getIso(),
+            'focal_length' => $metadata->getFocalLength(),
+            'lens' => $metadata->getLens(),
+            'lat' => $metadata->getGpsData() ? $metadata->getGpsData()[0] : null,
+            'long' => $metadata->getGpsData() ? $metadata->getGpsData()[1] : null,
+            'keywords' => (array)$metadata->getKeywords()
         ];
 
-        $search->setEntry($this->getRelativeLocation(), $data, __CLASS__, $metadata);
+        $search->setEntry($this->getRelativeLocation(), basename($this->path), __CLASS__, $metadataArray);
     }
 
     public function updateDetail($updateCurrent = false, $fixedRotate = null)

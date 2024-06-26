@@ -22,7 +22,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 
 # Install Ralbum 
 RUN cd /var/www/html && git clone https://github.com/ralbum/ralbum.git .
-RUN cd /var/www/html/app && composer install
+RUN cd /var/www/html/app && /usr/local/bin/composer install
 
 # Set permissions for cache and data
 RUN chmod 775 /var/www/html/cache

@@ -157,7 +157,7 @@
 
 		var Markers = [
 			{% for key, image in images %}
-				{lat: {{ image.metadata.lat }}, lng: {{ image.metadata.long }}, img: "{{ key }}" },
+				{lat: {{ image.lat }}, lng: {{ image.long }}, img: "{{ image.file_path }}" },
 			{% endfor %}
 		];
 
@@ -195,6 +195,8 @@
 					return feature;
 				}
 			);
+
+			console.log(feature);
 
 			if (feature) {
 				document.getElementById('map_image').setAttribute('src', '{{ base_url_ralbum }}' + '/detail' + feature.values_.image_url);

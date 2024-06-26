@@ -123,12 +123,21 @@ class App
 
     public function renderMap()
     {
+        if (!Search::isSupported()) {
+            header("HTTP/1.0 404 Not Found");
+            http_response_code(404);
+
+            $variables['message'] = 'Map is not supported because this requires the search function (which requires SQLite)';
+            $variables['link'] = BASE_URL . '/';
+
+            echo $this->twig->render('notfound.twig', $variables);
+            die();
+        }
+
         $search = new Search();
-        $search->loadIndex();
         $images = $search->getImagesWithGeo();
 
-        $variables = ['images' => $images];
-        echo $this->twig->render('map.twig', $variables);
+        echo $this->twig->render('map.twig', ['images' => $images]);
     }
 
     public function renderDetail()
@@ -370,20 +379,19 @@ class App
         $pagination->currentPage = $this->getPage();
         $pagination->itemsPerPage = $imagesPerPage;
 
-        $latestImages = $onThisDay = [];
+        $latestImages = $onThisDay = $dataStats = [];
 
         $randomImages = [];
-        
-        if (count($images) == 0 && count($this->parts) == 0) {
-            $index = new \Ralbum\Search();
-            $latestImages = $index->getLatestImages();
-            $onThisDay = $index->getOnThisDay();
-            $randomImages = $index->getRandom();
+
+        if (count($images) == 0 && count($this->parts) == 0 && Search::isSupported()) {
+            $search = new \Ralbum\Search();
+            $latestImages = $search->getLatestImages();
+            $onThisDay = $search->getOnThisDay();
+            $randomImages = $search->getRandom();
+            $dataStats['index_count'] = $search->getIndexCount();
         }
 
         $images = array_slice($images, ($this->getPage() - 1) * $imagesPerPage, $imagesPerPage);
-
-        $search = new Search();
 
         $variables = [
             'folders' => $folders,
@@ -394,17 +402,19 @@ class App
             'latest_images' => $latestImages,
             'on_this_day' => $onThisDay,
             'random_images' => $randomImages,
+            'data_stats' => $dataStats,
             'session' => $_SESSION
         ];
 
-        $variables = $variables + $this->getDefaultListVariables($search);
+        if (count($images) == 0 && count($this->parts) == 0 && Search::isSupported()) {
+            $variables = $variables + $this->getDefaultListVariables($search);
+        }
 
         if (count($this->parts) > 0) {
             $variables['folder_up'] = new \Ralbum\Model\Folder(dirname($listBaseDir));
         }
 
         echo $this->twig->render('list.twig', $variables);
-
     }
 
     public function updateThumbnail()
@@ -426,8 +436,19 @@ class App
 
     public function renderSearch()
     {
-        $index = new \Ralbum\Search();
-        $results = $index->search($_REQUEST['q']);
+        if (!Search::isSupported()) {
+            header("HTTP/1.0 404 Not Found");
+            http_response_code(404);
+
+            $variables['message'] = 'Search is not supported, this requires SQLite';
+            $variables['link'] = BASE_URL . '/';
+
+            echo $this->twig->render('notfound.twig', $variables);
+            die();
+        }
+
+        $search = new \Ralbum\Search();
+        $results = $search->search($_REQUEST['q']);
 
         $images = $otherFiles = [];
 
@@ -463,12 +484,12 @@ class App
         $variables = [
             'images' => $images,
             'other_files' => $otherFiles,
-            'index_count' => $index->getIndexCount(),
+            'index_count' => $search->getIndexCount(),
             'pagination' => $pagination,
             'total_nr_images' => $totalNrImages,
         ];
 
-        $variables = $variables + $this->getDefaultListVariables($index);
+        $variables = $variables + $this->getDefaultListVariables($search);
 
         $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day'];
 
@@ -480,7 +501,7 @@ class App
 
     }
 
-    public function getDefaultListVariables($index)
+    public function getDefaultListVariables($search)
     {
         $years = range(2000, date('Y'));
         $months = range(1,12);
@@ -490,10 +511,10 @@ class App
         }
         $days = range(1,31);
         return [
-            'index_count' => $index->getIndexCount(),
-            'unique_cams' => $index->getUniqueCameras(),
-            'unique_lenses' => $index->getUniqueLenses(),
-            'filter_active' => $index->hasFilter(),
+            'index_count' => $search->getIndexCount(),
+            'unique_cams' => $search->getUniqueCameras(),
+            'unique_lenses' => $search->getUniqueLenses(),
+            'filter_active' => $search->hasFilter(),
             'years' => array_combine($years, $years),
             'months' => array_combine($months, $monthsNames),
             'days' => array_combine($days, $days),

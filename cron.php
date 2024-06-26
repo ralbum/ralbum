@@ -17,9 +17,14 @@ echo "\n\nStart\n";
 echo "--------------------------\n";
 echo date('Y-m-d H:i:s') . "\n";
 
-// reset search index
-$search = new Search();
-$search->resetIndex();
+if (Search::isSupported()) {
+    // reset search index
+    $search = new Search();
+    $search->resetIndex();
+} else {
+    $search = [];
+}
+
 
 function updateRecursively($baseDir, $search)
 {
@@ -50,12 +55,13 @@ function updateRecursively($baseDir, $search)
 
         }
 
-        $file->updateIndex($search);
+        if (Search::isSupported()) {
+            $file->updateIndex($search);
+        }
     }
 }
 
 updateRecursively(Setting::get('image_base_dir'), $search);
-$search->save();
 
 echo "\n\nFinished\n";
 echo "--------------------------\n";

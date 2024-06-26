@@ -65,7 +65,7 @@
 			{% endif %}
 
 			{% if on_this_day|length > 0 %}
-				<div id="this_day">
+				<div id="this_day" class="home_section">
 					<h1>On this day</h1>
 
 					{% for year,yearImages in on_this_day %}
@@ -78,8 +78,8 @@
 				</div>
 			{% endif %}
 
-			{% if random_images	|length > 0 %}
-				<div id="random_images">
+			{% if random_images|length > 0 %}
+				<div id="random_images" class="home_section">
 					<h1>Random images</h1>
 					{% embed "images.twig" with {'images': random_images} %}
 					{% endembed %}

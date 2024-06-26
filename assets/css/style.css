@@ -21,7 +21,11 @@ h1, h2, h3, h4 {
 	padding: 2px 0 10px 0;
 }
 
-#this_day, .this_day_year, #random_images {
+.home_section {
+	padding-top: 16px;
+}
+
+div.this_day_year {
 	padding-top: 10px;
 }
 

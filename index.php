@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING);
 
 define('BASE_DIR', dirname(__FILE__));
 define('BASE_URL', str_replace($_SERVER['DOCUMENT_ROOT'], '', BASE_DIR));

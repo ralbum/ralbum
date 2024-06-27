@@ -42,7 +42,7 @@ class Search
     function createTable()
     {
         $this->db->exec('CREATE TABLE IF NOT EXISTS files (file_path STRING, file_name STRING, keywords STRING, file_type STRING, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)');
-        $this->db->exec('CREATE INDEX file_type_name on files(file_type)');
+        $this->db->exec('CREATE INDEX IF NOT EXISTS file_type_name on files(file_type)');
     }
 
     function resetIndex()

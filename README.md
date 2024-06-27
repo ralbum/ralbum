@@ -28,7 +28,7 @@ Images with geographical information embedded in the EXIF can be displayed on a 
 
 ## Installation
 
-You can install this using Docker or on your base system, Docker is the easiest way because you won't have to check for certain software compatibility. You _do_ need to install Docker of course. In the future I'm probably going to add the image on docker-hub to you can donwload it without building.
+You can install this using Docker or on your base system, Docker is the easiest way because you won't have to check for certain software compatibility. You _do_ need to install Docker of course.
 
 ### Installation using Docker
 ```
@@ -75,6 +75,7 @@ docker build --no-cache -t ralbum .
 * PHP 7.0 and up
 * Apache with mod_rewrite or nginx (nginx-light on Debian should suffice)
 * Either PHP's GD library but preferably the Imagick extension (and ImageMagick installed)
+* SQLite, this is optional (for search feature and dashboard), usually comes with PHP
 
 ### Procedure
 * Copy the contents in your DocumentRoot, this can also be a sub-folder

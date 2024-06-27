@@ -8,6 +8,8 @@ swipe actions on smart-phones and with the keys of your keyboard. The original f
 read, no write actions are performed on the original files. For all images a smaller version of the 
 image will be generated (on the fly or preferably using cron.php).
 
+![ralbum](ralbum.jpg)
+
 ## Features
 
 ### Image viewing

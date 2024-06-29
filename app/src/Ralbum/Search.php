@@ -134,16 +134,14 @@ class Search
             }
         }
 
-
         foreach ($this->filters as $requestParam => $filter) {
-            if ($filter == 'date_taken') {
-                //handled seperately below
-            } else {
+            if ($filter != 'date_taken') {
                 if (isset($_REQUEST[$requestParam]) && strlen($_REQUEST[$requestParam]) > 0) {
-                    $query .= ' AND ' . $filter . ' LIKE "%' . $_REQUEST[$requestParam] . '%"';
+                    $query .= ' AND ' . $filter . ' = :' . $filter . '' ;
                 }
             }
         }
+
 
         if (isset($_REQUEST['year']) && strlen($_REQUEST['year']) > 0) {
             $query .= ' AND strftime("%Y", date_taken) = "' . (int)$_REQUEST['year'] . '" ';
@@ -171,6 +169,14 @@ class Search
         if (count($words) > 0) {
             foreach ($words as $i => $word) {
                 $statement->bindValue(':word' . $i, '%' . $word . '%');
+            }
+        }
+
+        foreach ($this->filters as $requestParam => $filter) {
+            if ($filter != 'date_taken') {
+                if (isset($_REQUEST[$requestParam]) && strlen($_REQUEST[$requestParam]) > 0) {
+                    $statement->bindValue(':' . $filter, $_REQUEST[$requestParam]);
+                }
             }
         }
 

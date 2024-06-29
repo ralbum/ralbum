@@ -137,13 +137,25 @@ class Search
 
         foreach ($this->filters as $requestParam => $filter) {
             if ($filter == 'date_taken') {
-                //TODO
+                //handled seperately below
             } else {
                 if (isset($_REQUEST[$requestParam]) && strlen($_REQUEST[$requestParam]) > 0) {
                     $query .= ' AND ' . $filter . ' LIKE "%' . $_REQUEST[$requestParam] . '%"';
                 }
             }
         }
+
+        if (isset($_REQUEST['year']) && strlen($_REQUEST['year']) > 0) {
+            $query .= ' AND strftime("%Y", date_taken) = "' . (int)$_REQUEST['year'] . '" ';
+        }
+        if (isset($_REQUEST['month']) && strlen($_REQUEST['month']) > 0) {
+            $query .= ' AND strftime("%m", date_taken) = "' . str_pad((int)$_REQUEST['month'], 2, '0', STR_PAD_LEFT) . '" ';
+        }
+        if (isset($_REQUEST['day']) && strlen($_REQUEST['day']) > 0) {
+            $query .= ' AND strftime("%d", date_taken) = "' . str_pad((int)$_REQUEST['day'], 2, '0', STR_PAD_LEFT) . '" ';
+        }
+
+        // var_dump($query); die();
 
 //        $perPage = 100;
 //        $page = max(1, isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1);

@@ -88,7 +88,7 @@ class Search
                     if (is_array($metadata[$val])) {
                         $metadata[$val] = implode(' ', $metadata[$val]);
                     }
-                    $statement->bindValue(':'. $val, $metadata[$val]);
+                    $statement->bindValue(':'. $val, $this->replaceDiacritics($metadata[$val]));
                 }
             }
         }
@@ -114,7 +114,7 @@ class Search
         $results = [];
 
         $words = explode(' ', trim($q));
-        $words = array_filter($words,'strlen');
+        $words = array_filter($words, 'strlen');
 
         $query = 'SELECT * FROM files WHERE 1=1 ';
 
@@ -123,8 +123,13 @@ class Search
             $keywordSearches = [];
             $filenameSearches = [];
             foreach ($words as $i => $word) {
-                $keywordSearches[] = ' keywords LIKE :word' . $i . ' ';
-                $filenameSearches[] = ' file_name LIKE :word' . $i . ' ';
+                if (substr($word, 0, 1) == '-') {
+                    $keywordSearches[] = ' keywords NOT LIKE :word' . $i . ' ';
+                    $filenameSearches[] = ' file_name NOT LIKE :word' . $i . ' ';
+                } else {
+                    $keywordSearches[] = ' keywords LIKE :word' . $i . ' ';
+                    $filenameSearches[] = ' file_name LIKE :word' . $i . ' ';
+                }
             }
 
             if (isset($_REQUEST['limit_to_keyword_search'])) {
@@ -132,6 +137,7 @@ class Search
             } else {
                 $query .= ' AND ( (' . implode(' AND ', $filenameSearches) . ') OR ( '. implode(' AND ', $keywordSearches) . ')) ';
             }
+
         }
 
         foreach ($this->filters as $requestParam => $filter) {
@@ -141,7 +147,6 @@ class Search
                 }
             }
         }
-
 
         if (isset($_REQUEST['year']) && strlen($_REQUEST['year']) > 0) {
             $query .= ' AND strftime("%Y", date_taken) = "' . (int)$_REQUEST['year'] . '" ';
@@ -153,22 +158,16 @@ class Search
             $query .= ' AND strftime("%d", date_taken) = "' . str_pad((int)$_REQUEST['day'], 2, '0', STR_PAD_LEFT) . '" ';
         }
 
-        // var_dump($query); die();
-
-//        $perPage = 100;
-//        $page = max(1, isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1);
-//        $offset = ($page-1)*$perPage;
-//        $query .= ' ORDER BY date_taken DESC LIMIT ' . $perPage . ' OFFSET ' . $offset;
         $query .= ' ORDER BY date_taken DESC';
         $statement = $this->db->prepare($query);
 
-//        var_dump($query); die();
-//        var_dump($this->db->lastErrorMsg());
-//        die();
-
         if (count($words) > 0) {
             foreach ($words as $i => $word) {
-                $statement->bindValue(':word' . $i, '%' . $word . '%');
+                if (substr($word, 0, 1) == '-') {
+                    $statement->bindValue(':word' . $i, '%' . $this->replaceDiacritics(substr($word, 1)) . '%');
+                } else {
+                    $statement->bindValue(':word' . $i, '%' . $this->replaceDiacritics($word) . '%');
+                }
             }
         }
 
@@ -208,26 +207,6 @@ class Search
             return $row['count(*)'];
         }
     }
-
-//    function sortByDateTaken($a, $b)
-//    {
-//        if (!isset($a['metadata']) || !isset($a['metadata']['date_taken'])) {
-//            return 0;
-//        }
-//
-//        if (!isset($b['metadata']) || !isset($b['metadata']['date_taken'])) {
-//            return 0;
-//        }
-//
-//        $dateA = $a['metadata']['date_taken'];
-//        $dateB = $b['metadata']['date_taken'];
-//
-//        if ($dateA == $dateB) {
-//            return 0;
-//        }
-//
-//        return $dateA > $dateB ? -1 : 1;
-//    }
 
     function getLatestImages()
     {

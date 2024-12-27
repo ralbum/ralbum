@@ -300,6 +300,11 @@ $(document).ready(function()
 
     $(document).keydown(function(e)
     {
+        // check if gallery is open
+        if (!$('#overlay').is(':visible')) {
+            return;
+        }
+
         switch (e.which) {
             case 37: // left
                 showPreviousImage();

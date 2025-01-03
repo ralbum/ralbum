@@ -554,6 +554,8 @@ class App
         $response = [
             'result' => true,
             'file' => trim($file->getFolderName(), '/') . '/' . $file->getName(),
+            'filename' => $file->getName(),
+            'folders' => explode('/', trim($file->getFolderName(), '/'))
         ];
 
         $data = [

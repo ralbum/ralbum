@@ -95,7 +95,17 @@ $(document).ready(function()
 
             if (result.result == true) {
                 var responseHtml = $('<table/>');
-                responseHtml.append('<tr><td>File</td><td>' + result.file + '</td></tr>');
+                let fileNameText = '';
+
+                if (result.folders && result.folders.length > 0) {
+                    let url = window.appRoot;
+                    for (i = 0; i < result.folders.length; i++) {
+                        url += '/' + result.folders[i];
+                        fileNameText += '<a href="' + url + '">' + result.folders[i] + '</a> ' + ' / ';
+                    }
+                }
+                fileNameText += result.filename;
+                responseHtml.append('<tr><td>File</td><td>' + fileNameText + '</td></tr>');
 
                 var data = result.data;
 

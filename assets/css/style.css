@@ -296,6 +296,11 @@ div.this_day_year {
 	padding: 2px;
 }
 
+div.feature-links a {
+	display: inline-block;
+	padding: 8px 0 4px;
+}
+
 #navigation {
 	grid-column-start: 1;
 	grid-row-start: 3;
@@ -562,16 +567,17 @@ a.image img {
 
 
 #info {
-	overflow-y : scroll;
-	overflow-x : hidden;
-	display : none;
-	position : absolute;
-	right : 0;
-	top : 0;
-	z-index : 21;
-	height : 100%;
-	width : 72%;
-	background : #222;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	display: none;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 21;
+	height: 70%; /* Pas dit eventueel aan */
+	width: 80%; /* Iets breder gemaakt */
+	background: #222;
 	border: 1px solid #111;
 	border-top: none;
 }
@@ -611,6 +617,27 @@ a.image img {
 
 #info table tr:nth-child(odd) , #map_image_info tr:nth-child(odd) {
 	background : #333;
+}
+
+.stats_section {
+	width: 49%;
+	padding: 0 1%;
+	float: left;
+}
+
+table.stats_table {
+	border-collapse : collapse;
+	width : 100%;
+}
+
+table.stats_table tr th {
+	padding : 10px;
+	text-align : left;
+}
+
+table.stats_table tr td {
+	border-top : 1px solid #111;
+	padding : 10px;
 }
 
 #page, a.image img, a.folder {

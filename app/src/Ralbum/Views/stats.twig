@@ -1,0 +1,77 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+	{% embed "header.twig" %}
+	{% endembed %}
+
+	<div id="navigation">
+		<h1>Folders</h1>
+		<table class="stats_table">
+			<tr>
+				<th>Name</th>
+				<th>Count</th>
+			</tr>
+			{% for name, count in folders %}
+				<tr>
+					<td><a href="{{ base_url }}/{{ name }}">{{ name }}</a></td>
+					<td>{{ count }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+
+	<div id="content">
+
+		<div class="stats_section">
+			<h1>Stats</h1>
+			<table class="stats_table">
+				<tr>
+					<th>Name</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>Total count</td>
+					<td>{{ count }}</td>
+				</tr>
+				<tr>
+					<td>Unique keywords</td>
+					<td>{{ keywords|length }}</td>
+				</tr>
+				<tr>
+					<td>Total keywords</td>
+					<td>{{ keyword_count }}</td>
+				</tr>
+				<tr>
+					<td>Without keywords</td>
+					<td>{{ without_keywords }}</td>
+				</tr>
+				<tr>
+					<td>Average number of keywords per image</td>
+					<td>{{ average_number_keywords }}</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="stats_section">
+			<h1>Keywords</h1>
+			<table class="stats_table">
+				<tr>
+					<th>Keyword</th>
+					<th>Count</th>
+				</tr>
+				{% for keyword, count in keywords %}
+					<tr>
+						<td><a href="{{ base_url_ralbum }}/search?q={{ keyword }}&limit_to_keyword_search=on">{{ keyword }}</a></td>
+						<td>{{ count }}</td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+
+
+	</div>
+
+{% endblock %}
+
+

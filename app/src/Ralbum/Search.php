@@ -39,19 +39,19 @@ class Search
         }
     }
 
-    function createTable()
+    public function createTable()
     {
         $this->db->exec('CREATE TABLE IF NOT EXISTS files (file_path STRING, file_name STRING, keywords STRING, file_type STRING, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)');
         $this->db->exec('CREATE INDEX IF NOT EXISTS file_type_name on files(file_type)');
     }
 
-    function resetIndex()
+    public function resetIndex()
     {
         $this->db->query('DROP TABLE files');
         $this->createTable();
     }
 
-    function setEntry($key, $filename, $type, $metadata = [])
+    public function setEntry($key, $filename, $type, $metadata = [])
     {
         $dataKeys = [
             'file_path',
@@ -86,7 +86,7 @@ class Search
             if (!in_array($val, ['file_path', 'file_name', 'file_type'])) {
                 if (isset($metadata[$val])) {
                     if (is_array($metadata[$val])) {
-                        $metadata[$val] = implode(' ', $metadata[$val]);
+                        $metadata[$val] = implode(',', $metadata[$val]);
                     }
                     $statement->bindValue(':'. $val, $this->replaceDiacritics($metadata[$val]));
                 }
@@ -109,7 +109,7 @@ class Search
         return false;
     }
 
-    function search($q)
+    public function search($q)
     {
         $results = [];
 
@@ -189,7 +189,7 @@ class Search
 
     }
 
-    function replaceDiacritics($string)
+    public function replaceDiacritics($string)
     {
         if (function_exists('iconv')) {
             return iconv('UTF-8', 'ASCII//TRANSLIT', $string);
@@ -199,7 +199,7 @@ class Search
 
     }
 
-    function getIndexCount()
+    public function getIndexCount()
     {
         $statement = $this->db->prepare('SELECT count(*) FROM files');
         $result = $statement->execute();
@@ -208,7 +208,7 @@ class Search
         }
     }
 
-    function getLatestImages()
+    public function getLatestImages()
     {
         $limit = \Ralbum\Setting::get('latest_images_count');
 
@@ -222,13 +222,73 @@ class Search
 
     }
 
-    function getPopularKeywords()
+    public function getImageCount()
     {
-        $statement = $this->db->prepare('SELECT count(*) FROM files');
+        $statement = $this->db->prepare('SELECT count(file_path) as file_count FROM files');
         $result = $statement->execute();
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            return $row;
+            return $row['file_count'];
         }
+    }
+
+    public function getStats()
+    {
+        $statement = $this->db->prepare('SELECT * FROM files');
+        $result = $statement->execute();
+
+        $keywords = [];
+        $folders = [];
+        $count = 0;
+        $keywordCount = 0;
+        $withoutKeywords = 0;
+        $imagesWithKeywords = 0;
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+
+            $count++;
+
+            if (substr_count($row['file_path'], '/') >= 2) {
+                $folder = substr($row['file_path'], 1, strpos($row['file_path'], '/', 1));
+                if ($folder) {
+                    if (isset($folders[$folder])) {
+                        $folders[$folder]++;
+                    } else {
+                        $folders[$folder] = 1;
+                    }
+                }
+            }
+
+            $thisKeywords = explode(',', $row['keywords']);
+            $thisKeywords = array_filter($thisKeywords, 'strlen');
+
+            if (count($thisKeywords) == 0) {
+                $withoutKeywords++;
+            } else {
+                $imagesWithKeywords++;
+                foreach ($thisKeywords as $thisKeyword) {
+                    $keywordCount++;
+                    if (isset($keywords[$thisKeyword])) {
+                        $keywords[$thisKeyword]++;
+                    } else {
+                        $keywords[$thisKeyword] = 1;
+                    }
+                }
+            }
+
+
+        }
+
+        arsort($keywords);
+
+        return [
+            'keywords' => $keywords,
+            'folders' => $folders,
+            'count' => $count,
+            'keyword_count' => $keywordCount,
+            'without_keywords' => $withoutKeywords,
+            'average_number_keywords' => round($imagesWithKeywords > 0 ? ($keywordCount/$imagesWithKeywords) : 0, 3)
+        ];
     }
 
     function getOnThisDay()

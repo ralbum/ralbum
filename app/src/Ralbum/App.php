@@ -11,7 +11,7 @@ class App
     protected $setting;
     protected $parts;
 
-    protected $actions = ['list', 'detail', 'original', 'update_thumbnail', 'search', 'info', 'rotate', 'video_stream', 'map_view'];
+    protected $actions = ['list', 'detail', 'original', 'update_thumbnail', 'search', 'info', 'rotate', 'video_stream', 'map_view', 'stats'];
 
     public function __construct()
     {
@@ -117,6 +117,9 @@ class App
             case 'map_view':
                 $this->renderMap();
                 break;
+            case 'stats':
+                $this->renderStats();
+                break;
 
         }
     }
@@ -137,7 +140,21 @@ class App
         $search = new Search();
         $images = $search->getImagesWithGeo();
 
-        echo $this->twig->render('map.twig', ['images' => $images]);
+        $variables =  ['images' => $images] + $this->getDefaultListVariables($search);
+
+        echo $this->twig->render('map.twig', $variables);
+    }
+
+    public function renderStats()
+    {
+        $variables = [];
+
+        if (Search::isSupported()) {
+            $search = new Search();
+            $variables = $search->getStats() + $this->getDefaultListVariables($search);
+        }
+
+        echo $this->twig->render('stats.twig', $variables);
     }
 
     public function renderDetail()
@@ -501,7 +518,7 @@ class App
 
     }
 
-    public function getDefaultListVariables($search)
+    public function getDefaultListVariables(Search $search)
     {
         $years = range(2000, date('Y'));
         $months = range(1,12);

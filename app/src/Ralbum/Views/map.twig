@@ -5,218 +5,76 @@
 	{% embed "header.twig" %}
 	{% endembed %}
 
-	<style type="text/css">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 
-		#map {
-			width: 100%;
-			height: 500px;
-		}
+	<div id="map"></div>
 
-		#map_container {
-			grid-column-start: 1;
-			grid-row-start: 3;
-			grid-row-end: 5;
-		}
+	<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-		#content {
-			min-height: 500px;
-			margin: 0; padding: 0;
-		}
-		#content img {
-			max-height: 500px;
-			max-width: 100%;
-		}
+	<script>
+		const map = L.map('map').setView([20, 0], 2);
 
-		#map_image_container {
-			height: 500px;
-		}
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '© OpenStreetMap contributors'
+		}).addTo(map);
 
-		#map_image_info {
-			background: #444444;
-			color: #FFF;
-		}
+		const photoData = {{ images|raw }};
+		const markers = L.markerClusterGroup();
+		const baseUrl = "{{ base_url }}";
 
-		#page {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-		}
+		photoData.forEach(photo => {
+			const marker = L.marker([photo.lat, photo.long]);
 
-		@media screen and (max-width:800px) {
-
-			#page {
-				display: block;
+			function generateFolderLinks(folders) {
+				let fullPath = "";
+				return folders.map((folder, index) => {
+					fullPath += folder + (index < folders.length - 1 ? "/" : "");
+					return `<a href="${baseUrl}/${fullPath}" target="_blank">${folder}</a>`;
+				}).join(" / ");
 			}
 
-			#map {
-				width: 100%;
-			}
-		}
+			const folderLinks = generateFolderLinks(photo.folders);
 
-		@media screen and (max-width:400px) {
-
-			#map {
-				width: 400px;
-				float: none;
-			}
-		}
-
-	</style>
-
-	<script src="https://cdn.jsdelivr.net/npm/ol@v7.2.2/dist/ol.js"></script>
-
-	<div id="map_container">
-		<div id="map" class="map"></div>
-	</div>
-	<div id="content">
-		<div id="map_image_container">
-			<img src="" id="map_image" style=""/>
-		</div>
-		<div id="map_image_info">
-		</div>
-	</div>
-
-	<script type="text/javascript">
-		// create map
-
-		function showImageInfoMap(imageUrl)
-		{
-			$('#map_image_info').html('');
-
-			$.ajax('{{ base_url_ralbum }}' + '/info/' + imageUrl).done(function(content) {
-
-				var result = JSON.parse(content);
-
-				if (result.result == true) {
-					var responseHtml = $('<table/>');
-
-					let fileNameText = '';
-
-					if (result.folders && result.folders.length > 0) {
-						let url = window.appRoot;
-						for (i = 0; i < result.folders.length; i++) {
-							url += '/' + result.folders[i];
-							fileNameText += '<a href="' + url + '">' + result.folders[i] + '</a> ' + ' / ';
-						}
-					}
-					fileNameText += result.filename;
-
-					responseHtml.append('<tr><td>File</td><td>' + fileNameText + '</td></tr>');
-
-					var data = result.data;
-
-					if (data) {
-						$.each(data, function(key, val)
-						{
-							var items = [];
-
-							if (key.indexOf('Date') !== -1 && val != false) {
-								dateObj = new Date(val * 1000);
-								val = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString();
-							}
-
-							if (key.indexOf('GPS') !== -1 && val != false && val.length > 0) {
-								val = '<a target="_blank" href="https://maps.google.nl/?q=' + val.join(', ') +'">' + val.join(', ') +'</a>'
-							}
-
-							if (key.indexOf('Keywords') !== -1 && val != false && val.length > 0) {
-								val = val.join(', ');
-							}
-
-							if (key.indexOf('File Size') !== -1 && val > 0) {
-								return;
-							}
-
-							items.push('<td>' + key + '</td>');
-							items.push('<td>' + (val == false ? '' : val) + '</td>');
-							responseHtml.append($('<tr/>', {html: items.join('')}));
-						});
-					}
-				}
-
-				$('#map_image_info').append(responseHtml);
-
-			}).fail(function()
-			{
-				console.log('Request for fetching info failed');
+			// Bind de popup met een grotere afbeelding en extra instellingen
+			marker.bindPopup(`
+      <div class="popup-content">
+        <div class="popup-img-container">
+          <img class="popup-img" src="${photo.file_original}" alt="" />
+        </div>
+        <div class="popup-folders">${folderLinks}</div>
+        <br>
+        ${photo.keywords.split(',').join(', ')}
+      </div>
+    `, {
+				maxWidth: 500,
+				autoPan: true,
+				closeButton: true,
+				className: 'custom-popup'
 			});
 
-		}
-
-		var layerListeners = {
-			featureclick: function(e) {
-				log(e.object.name + " says: " + e.feature.id + " clicked.");
-				return false;
-			},
-			nofeatureclick: function(e) {
-				log(e.object.name + " says: No feature clicked.");
-			}
-		};
-
-		var map = new ol.Map({
-			target: 'map',
-			layers: [
-				new ol.layer.Tile({
-					source: new ol.source.OSM()
-				})
-			],
-			view: new ol.View({
-				center: ol.proj.fromLonLat([4.35247, 50.84673]),
-				zoom: 4
-			})
+			markers.addLayer(marker);
 		});
 
-		var features = [];
+		map.addLayer(markers);
 
-		var Markers = [
-			{% for key, image in images %}
-				{lat: {{ image.lat }}, lng: {{ image.long }}, img: "{{ image.file_path }}" },
-			{% endfor %}
-		];
+		map.on('popupopen', function (e) {
+			var popup = e.popup;
 
-		for (var i = 0; i < Markers.length; i++) {
-			var item = Markers[i];
+			setTimeout(function() {
+				map.setView(popup._latlng, map.getZoom(), { animate: true });
+			}, 100);
 
-			var iconFeature = new ol.Feature({
-				geometry: new ol.geom.Point(ol.proj.fromLonLat([item.lng, item.lat])),
-				image_url: item.img,
-			});
+			setTimeout(function() {
+				const mapHeight = map.getSize().y;
+				const bottomMargin = 50;
+				const shift = -(mapHeight/2) + bottomMargin;
 
-			var iconStyle = new ol.style.Style({
-				image: new ol.style.Icon({
-					anchor: [0.5, 1],
-					src: "{{ base_url }}/assets/images/marker.png"
-				})
-			});
-
-			iconFeature.setStyle(iconStyle);
-			features.push(iconFeature);
-		}
-
-		var vectorSource = new ol.source.Vector({
-			features: features
+				map.panBy([0, shift], { animate: true });
+			}, 400);
 		});
-
-		var vectorLayer = new ol.layer.Vector({
-			source: vectorSource
-		});
-		map.addLayer(vectorLayer);
-
-		map.on('click', function(evt) {
-			var feature = map.forEachFeatureAtPixel(evt.pixel,
-				function (feature) {
-					return feature;
-				}
-			);
-
-			console.log(feature);
-
-			if (feature) {
-				document.getElementById('map_image').setAttribute('src', '{{ base_url_ralbum }}' + '/detail' + feature.values_.image_url);
-				document.getElementById('map_image').setAttribute('style.display', 'block');
-				showImageInfoMap(feature.values_.image_url);
-			}
-		});
-
 	</script>
 
 

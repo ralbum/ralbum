@@ -600,23 +600,67 @@ a.image img {
 	background-size : auto 100%;
 }
 
-#info table, #map_image_info table {
+#info table {
 	border-collapse : collapse;
 	width : 100%;
 }
 
-#info table tr th, #map_image_info tr th {
+#info table tr th {
 	padding : 10px;
 	text-align : left;
 }
 
-#info table tr td, #map_image_info tr td {
+#info table tr td {
 	border-top : 1px solid #111;
 	padding : 10px;
 }
 
-#info table tr:nth-child(odd) , #map_image_info tr:nth-child(odd) {
+#info table tr:nth-child(odd) {
 	background : #333;
+}
+
+#map {
+	height: 800px;
+	width: 100%;
+}
+
+.leaflet-popup-content {
+	width: 500px;
+	max-width: 100% !important;
+	padding: 0;
+	position: relative;
+}
+
+.popup-img-container {
+	display: block;
+	width: 100%;
+	height: auto;
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.popup-img {
+	max-width: 100%;
+	max-height: 400px;
+	width: auto;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+	object-fit: contain;
+}
+
+.popup-content {
+	text-align: center;
+}
+
+.popup-folders {
+	margin-top: 10px;
+	text-align: left;
+}
+
+.popup-folders a {
+	color: blue;
+	text-decoration: underline;
 }
 
 .stats_section {
@@ -762,6 +806,14 @@ a.play-link {
 		line-height : 40px;
 		height : 40px;
 		font-size: 1.2em;
+	}
+
+	.leaflet-popup-content {
+		width: 250px;
+	}
+
+	#map {
+		height: 400px;
 	}
 
 }

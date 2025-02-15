@@ -140,7 +140,14 @@ class App
         $search = new Search();
         $images = $search->getImagesWithGeo();
 
-        $variables =  ['images' => $images] + $this->getDefaultListVariables($search);
+        foreach ($images as $key => $image) {
+            $images[$key]['file_original'] = BASE_URL_RALBUM . '/original'. $image['file_path'];
+            $folders = explode('/', trim($image['file_path'], '/'));
+            array_pop($folders);
+            $images[$key]['folders'] = $folders;
+        }
+
+        $variables =  ['images' => json_encode($images)] + $this->getDefaultListVariables($search) + ['mode' => 'map'];
 
         echo $this->twig->render('map.twig', $variables);
     }

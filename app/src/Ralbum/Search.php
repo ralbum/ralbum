@@ -377,7 +377,7 @@ class Search
         $statement = $this->db->prepare('SELECT * FROM files WHERE length(lat) > 0');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $images[$row['file_name']] = $row;
+            $images[] = $row;
         }
 
         return $images;

@@ -15,10 +15,14 @@
 	<link rel="manifest" href="{{ base_url }}/assets/images/favicon/site.webmanifest" />
 </head>
 <body id="body">
-	<div id="page">
-		{% block content %}
-		{% endblock %}
+	{% if mode == "map" %}
+		<div id="page_map">
+	{% else %}
+		<div id="page">
+	{% endif %}
 
+	{% block content %}
+	{% endblock %}
 	</div>
 	<script type="text/javascript">
 		window.appRoot = "{{ base_url }}";

@@ -21,6 +21,8 @@ if (Search::isSupported()) {
     // reset search index
     $search = new Search();
     $search->resetIndex();
+    $search->begintTransaction();
+
 } else {
     $search = [];
 }
@@ -59,6 +61,10 @@ function updateRecursively($baseDir, $search)
             $file->updateIndex($search);
         }
     }
+}
+
+if (Search::isSupported()) {
+    $search->commitTransaction();
 }
 
 updateRecursively(Setting::get('image_base_dir'), $search);

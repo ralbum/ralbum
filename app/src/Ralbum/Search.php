@@ -49,6 +49,17 @@ class Search
     {
         $this->db->query('DROP TABLE files');
         $this->createTable();
+        $this->db->busyTimeout(5000);
+    }
+
+    public function begintTransaction()
+    {
+        $this->db->exec('BEGIN TRANSACTION');
+    }
+
+    public function commitTransaction()
+    {
+        $this->db->exec('COMMIT');
     }
 
     public function setEntry($key, $filename, $type, $metadata = [])

@@ -110,8 +110,7 @@ $(document).ready(function()
                 var data = result.data;
 
                 if (data) {
-                    $.each(data, function(key, val)
-                    {
+                    $.each(data, function(key, val) {
                         var items = [];
 
                         if (key.indexOf('Date') !== -1 && val != false) {
@@ -124,7 +123,14 @@ $(document).ready(function()
                         }
 
                         if (key.indexOf('Keywords') !== -1 && val != false && val.length > 0) {
-                            val = val.join(', ');
+
+                            let newVal = '';
+                            let url = window.appRootRalbum + '/search?q=';
+                            val.forEach(function(keyword){
+                                newVal += '<a class="keyword-link" href="' + url + keyword + '">' + keyword + '</a>';
+                            })
+
+                            val = newVal;
                         }
 
                         if (key.indexOf('File Size') !== -1 && val > 0) {
@@ -150,8 +156,7 @@ $(document).ready(function()
 
             $('#info').show();
 
-        }).fail(function()
-        {
+        }).fail(function(){
             console.log('Request for fetching info failed');
         });
 

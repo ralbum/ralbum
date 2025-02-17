@@ -365,6 +365,10 @@ a.folder.up img {
 	vertical-align : middle;
 }
 
+a.keyword-link {
+	padding-right: 8px;
+}
+
 div.other-files {
 	padding-bottom: 8px;
 }

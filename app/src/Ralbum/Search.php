@@ -7,7 +7,6 @@ use Ralbum\Model\Image;
 class Search
 {
     protected $index = [];
-    protected $indexFile = null;
     protected $db = null;
 
     public $filters = [
@@ -23,7 +22,7 @@ class Search
         return class_exists('SQLite3');
     }
 
-    function __construct($indexFile = null)
+    function __construct()
     {
         $this->db = new \SQLite3(BASE_DIR . '/data/database.db');
         $this->createTable();
@@ -167,6 +166,23 @@ class Search
         }
         if (isset($_REQUEST['day']) && strlen($_REQUEST['day']) > 0) {
             $query .= ' AND strftime("%d", date_taken) = "' . str_pad((int)$_REQUEST['day'], 2, '0', STR_PAD_LEFT) . '" ';
+        }
+
+        if (isset($_REQUEST['season']) && strlen($_REQUEST['season']) > 0) {
+            switch ($_REQUEST['season']) {
+                case 'summer':
+                    $query .= 'AND strftime("%m", date_taken) IN ("06","07","08") ';
+                break;
+                case 'winter';
+                    $query .= 'AND strftime("%m", date_taken) IN ("12","01","02") ';
+                break;
+                case 'spring';
+                    $query .= 'AND strftime("%m", date_taken) IN ("03","04","05") ';
+                break;
+                case 'autumn':
+                    $query .= 'AND strftime("%m", date_taken) IN ("09","10","11") ';
+                    break;
+            }
         }
 
         $query .= ' ORDER BY date_taken DESC';

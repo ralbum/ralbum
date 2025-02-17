@@ -55,6 +55,14 @@
 					</select>
 				</div>
 
+				<select name="season">
+					<option value=""> - season - </option>
+					<option value="summer" {% if season == "summer" %}selected="selected"{% endif %}>Summer</option>
+					<option value="autumn" {% if season == "autumn" %}selected="selected"{% endif %}>Autumn</option>
+					<option value="winter" {% if season == "winter" %}selected="selected"{% endif %}>Winter</option>
+					<option value="spring" {% if season == "spring" %}selected="selected"{% endif %}>Spring</option>
+				</select>
+
 				<div class="feature-links">
 					<a href="{{ base_url_ralbum }}/map_view" class="feature-button">Search for images on a map</a>
 					<br />

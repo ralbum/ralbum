@@ -258,7 +258,7 @@ class Metadata
 
     public function getDateTaken()
     {
-        if (isset($this->exif['DateTimeOriginal'])) {
+        if (isset($this->exif['DateTimeOriginal']) && strlen($this->exif['DateTimeOriginal']) > 10) {
             return strtotime($this->exif['DateTimeOriginal']);
         }
         return false;

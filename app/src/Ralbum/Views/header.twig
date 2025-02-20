@@ -18,6 +18,7 @@
 					<input type="checkbox" id="limit_to_keyword_search" name="limit_to_keyword_search" {% if limit_to_keyword_search %}checked="checked"{% endif %}/>
 					<label for="limit_to_keyword_search">Limit text-search by keyword</label>
 				</div>
+				<h3>Equipment</h3>
 				<div class="search_option">
 					<select name="camera">
 						<option value=""> - camera - </option>
@@ -34,6 +35,7 @@
 						{% endfor %}
 					</select>
 				</div>
+				<h3>Date</h3>
 				<div class="search_option">
 					<select name="year" class="date">
 						<option value=""> - year - </option>
@@ -54,7 +56,7 @@
 						{% endfor %}
 					</select>
 				</div>
-
+				<h3>Season</h3>
 				<select name="season">
 					<option value=""> - season - </option>
 					<option value="summer" {% if season == "summer" %}selected="selected"{% endif %}>Summer</option>
@@ -62,11 +64,19 @@
 					<option value="winter" {% if season == "winter" %}selected="selected"{% endif %}>Winter</option>
 					<option value="spring" {% if season == "spring" %}selected="selected"{% endif %}>Spring</option>
 				</select>
-
+				<h3>Time of day</h3>
+				<select name="daytime">
+					<option value=""> - time of day - </option>
+					<option value="morning" {% if daytime == "morning" %}selected="selected"{% endif %}>Morning</option>
+					<option value="afternoon" {% if daytime == "afternoon" %}selected="selected"{% endif %}>Afternoon</option>
+					<option value="evening" {% if daytime == "evening" %}selected="selected"{% endif %}>Evening</option>
+					<option value="night" {% if daytime == "night" %}selected="selected"{% endif %}>Night</option>
+				</select>
+				<h3>Other ways of searching</h3>
 				<div class="feature-links">
 					<a href="{{ base_url_ralbum }}/map_view" class="feature-button">Search for images on a map</a>
 					<br />
-					<a href="{{ base_url_ralbum }}/stats" class="feature-button">Show stats</a>
+					<a href="{{ base_url_ralbum }}/stats" class="feature-button">Find images based on stats</a>
 				</div>
 			</div>
 		</form>

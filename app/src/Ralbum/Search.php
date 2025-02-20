@@ -29,7 +29,7 @@ class Search
 
         if (isset($_GET['debug_database'])) {
             echo '<pre>';
-            $statement = $this->db->prepare('SELECT *, datetime(date_taken) FROM files LIMIT 1000');
+            $statement = $this->db->prepare('DELETE FROM files where file_path="/2003/2003-03-20 meeting-maarssenveense-plassen/1e meeting 30.-3-2003 058.jpg"');
             $result = $statement->execute();
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 var_dump($row);
@@ -110,6 +110,8 @@ class Search
     {
         $filters = array_keys($this->filters);
         $filters[] = 'limit_to_keyword_search';
+        $filters[] = 'season';
+        $filters[] = 'daytime';
 
         foreach ($filters as $filter) {
             if (isset($_REQUEST[$filter]) && strlen($_REQUEST[$filter]) > 0) {
@@ -171,16 +173,33 @@ class Search
         if (isset($_REQUEST['season']) && strlen($_REQUEST['season']) > 0) {
             switch ($_REQUEST['season']) {
                 case 'summer':
-                    $query .= 'AND strftime("%m", date_taken) IN ("06","07","08") ';
+                    $query .= ' AND strftime("%m", date_taken) IN ("06","07","08") ';
                 break;
                 case 'winter';
-                    $query .= 'AND strftime("%m", date_taken) IN ("12","01","02") ';
+                    $query .= ' AND strftime("%m", date_taken) IN ("12","01","02") ';
                 break;
                 case 'spring';
-                    $query .= 'AND strftime("%m", date_taken) IN ("03","04","05") ';
+                    $query .= ' AND strftime("%m", date_taken) IN ("03","04","05") ';
                 break;
                 case 'autumn':
-                    $query .= 'AND strftime("%m", date_taken) IN ("09","10","11") ';
+                    $query .= ' AND strftime("%m", date_taken) IN ("09","10","11") ';
+                    break;
+            }
+        }
+
+        if (isset($_REQUEST['daytime']) && strlen($_REQUEST['daytime']) > 0) {
+            switch ($_REQUEST['daytime']) {
+                case 'morning':
+                    $query .= ' AND strftime("%H", date_taken) IN ("06","07","08","09","10","11") ';
+                    break;
+                case 'afternoon':
+                    $query .= ' AND strftime("%H", date_taken) IN ("12","13","14","15","16","17") ';
+                    break;
+                case 'evening':
+                    $query .= ' AND strftime("%H", date_taken) IN ("18","19","20","21","22","23") ';
+                    break;
+                case 'night':
+                    $query .= ' AND strftime("%H", date_taken) IN ("00","01","02","03","04","05") ';
                     break;
             }
         }

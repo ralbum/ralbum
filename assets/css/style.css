@@ -205,6 +205,11 @@ div.this_day_year {
 	margin-left: -4px;
 }
 
+#search #search_options h3 {
+	margin: 0;
+	padding: 10px 0 4px;
+}
+
 #search_activate {
 	background-size : auto 100%;
 	position : absolute;
@@ -287,7 +292,8 @@ div.this_day_year {
 }
 
 #search select {
-	width: 240px;
+	width: 100%;
+	max-width: 250px;
 	padding: 2px;
 }
 
@@ -296,9 +302,18 @@ div.this_day_year {
 	padding: 2px;
 }
 
+div.feature-links {
+	padding: 6px;
+	border-radius: 2px;
+	background: #222;
+	width: 99%;
+}
+
 div.feature-links a {
-	display: inline-block;
-	padding: 8px 0 4px;
+	display: block;
+		width: 100%;
+	border-radius: 2px;
+	text-indent: 4px;
 }
 
 #navigation {
@@ -686,6 +701,10 @@ table.stats_table tr th {
 table.stats_table tr td {
 	border-top : 1px solid #111;
 	padding : 10px;
+}
+
+table.stats_table tr:nth-child(odd) {
+	background : #333;
 }
 
 #page, a.image img, a.folder {

@@ -127,7 +127,7 @@ class Image extends File
         $metadata = $this->getMetadata();
 
         $metadataArray = [
-            'date_taken' => date('Y-m-d H:i:s', $metadata->getDateTaken()),
+            'date_taken' => ($metadata->getDateTaken() ? date('Y-m-d H:i:s', $metadata->getDateTaken()) : null),
             'make' => $metadata->getMake(),
             'model' => $metadata->getModel(),
             'aperture' => $metadata->getAperture(),

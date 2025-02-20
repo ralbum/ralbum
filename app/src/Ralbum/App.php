@@ -515,7 +515,7 @@ class App
 
         $variables = $variables + $this->getDefaultListVariables($search);
 
-        $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day', 'season'];
+        $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day', 'season', 'daytime'];
 
         foreach ($forwardRequestParameters as $parameter) {
             $variables[$parameter] = isset($_REQUEST[$parameter]) ? $_REQUEST[$parameter] : false;
@@ -587,14 +587,14 @@ class App
             'Camera Make' => $metadata->getMake(),
             'Camera Model' => $metadata->getModel(),
             'Lens' => $metadata->getLens(),
-            'Date taken' => $metadata->getDateTaken(),
+            'Date taken' => date('d-m-Y H:i', $metadata->getDateTaken()),
             'Shutterspeed' => $metadata->getFormattedShutterSpeed($metadata->getShutterSpeed()),
             'Aperture' => $metadata->getFormattedAperture($metadata->getAperture()),
             'ISO' => $metadata->getIso(),
             'Focal Length' => $metadata->getFormattedFocalLength($metadata->getFocalLength()),
             'GPS' => $metadata->getGpsData(),
             'Exposure' => trim($metadata->getExposureMode() . ', ' . $metadata->getExposureProgram(), ', '),
-            'File Date' => $metadata->getDateFile(),
+            'File Date' => date('d-m-Y H:i', $metadata->getDateFile()),
             'Orignal File Size' => $metadata->getFileSize(),
             'Original dimensions' => $metadata->getHeight() > 0 && $metadata->getWidth() > 0 ? $metadata->getHeight() . ' x ' . $metadata->getWidth() : false
         ];

@@ -113,10 +113,10 @@ $(document).ready(function()
                     $.each(data, function(key, val) {
                         var items = [];
 
-                        if (key.indexOf('Date') !== -1 && val != false) {
-                            dateObj = new Date(val * 1000);
-                            val = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString();
-                        }
+                        // if (key.indexOf('Date') !== -1 && val != false) {
+                        //     dateObj = new Date(val * 1000);
+                        //     val = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString();
+                        // }
 
                         if (key.indexOf('GPS') !== -1 && val != false && val.length > 0) {
                             val = '<a target="_blank" href="https://maps.google.nl/?q=' + val.join(', ') +'">' + val.join(', ') +'</a>'

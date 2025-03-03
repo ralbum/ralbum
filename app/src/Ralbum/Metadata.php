@@ -256,32 +256,38 @@ class Metadata
         return false;
     }
 
-    public function getDateTaken()
+
+    public function getDateValue($field, $format = null)
     {
-        if (isset($this->exif['DateTimeOriginal']) && strlen($this->exif['DateTimeOriginal']) > 10) {
-            return strtotime($this->exif['DateTimeOriginal']);
+        if (isset($this->exif[$field]) && strlen($this->exif[$field]) > 10) {
+            $timestamp = strtotime($this->exif[$field]);
+            if ($format) {
+                return date($format, $timestamp);
+            }
+            return $timestamp;
         }
         return false;
     }
 
-    public function getDateFile()
+    public function getDateTaken($format = null)
     {
-        $date1 = 0;
-        if (isset($this->exif['FileDateTime']) && $this->exif['FileDateTime'] > 0) {
-            $date1 = $this->exif['FileDateTime'];
+        return $this->getDateValue('DateTimeOriginal', $format);
+    }
 
+    public function getLastModificationDate($format = null)
+    {
+        return $this->getDateValue('DateTime', $format);
+    }
+
+    public function getFileDate($format = null)
+    {
+        $field = 'FileDateTime';
+        if (isset($this->exif[$field]) && strlen($this->exif[$field]) > 7) {
+            if ($format) {
+                return date($format, $this->exif[$field]);
+            }
+            return $this->exif[$field];
         }
-        $date2 = 0;
-        if (isset($this->exif['DateTime'])) {
-            $date2 = strtotime($this->exif['DateTime']);
-        }
-
-        $date = max($date1, $date2);
-
-        if ($date > 0) {
-            return $date;
-        }
-
         return false;
     }
 

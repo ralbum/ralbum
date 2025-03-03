@@ -26,16 +26,6 @@ class Search
     {
         $this->db = new \SQLite3(BASE_DIR . '/data/database.db');
         $this->createTable();
-
-        if (isset($_GET['debug_database'])) {
-            echo '<pre>';
-            $statement = $this->db->prepare('DELETE FROM files where file_path="/2003/2003-03-20 meeting-maarssenveense-plassen/1e meeting 30.-3-2003 058.jpg"');
-            $result = $statement->execute();
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                var_dump($row);
-            }
-            die();
-        }
     }
 
     public function createTable()

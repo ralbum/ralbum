@@ -587,14 +587,15 @@ class App
             'Camera Make' => $metadata->getMake(),
             'Camera Model' => $metadata->getModel(),
             'Lens' => $metadata->getLens(),
-            'Date taken' => date('d-m-Y H:i', $metadata->getDateTaken()),
+            'Date taken' => $metadata->getDateTaken('d-m-Y H:i'),
             'Shutterspeed' => $metadata->getFormattedShutterSpeed($metadata->getShutterSpeed()),
             'Aperture' => $metadata->getFormattedAperture($metadata->getAperture()),
             'ISO' => $metadata->getIso(),
             'Focal Length' => $metadata->getFormattedFocalLength($metadata->getFocalLength()),
             'GPS' => $metadata->getGpsData(),
             'Exposure' => trim($metadata->getExposureMode() . ', ' . $metadata->getExposureProgram(), ', '),
-            'File Date' => date('d-m-Y H:i', $metadata->getDateFile()),
+            'Modification date' => $metadata->getLastModificationDate('d-m-Y H:i'),
+            'File date' => $metadata->getFileDate('d-m-Y H:i'),
             'Orignal File Size' => $metadata->getFileSize(),
             'Original dimensions' => $metadata->getHeight() > 0 && $metadata->getWidth() > 0 ? $metadata->getHeight() . ' x ' . $metadata->getWidth() : false
         ];

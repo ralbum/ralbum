@@ -38,15 +38,16 @@
 
 			const folderLinks = generateFolderLinks(photo.folders);
 
-			// Bind de popup met een grotere afbeelding en extra instellingen
 			marker.bindPopup(`
       <div class="popup-content">
         <div class="popup-img-container">
           <img class="popup-img" src="${photo.file_original}" alt="" />
         </div>
-        <div class="popup-folders">${folderLinks}</div>
-        <br>
-        ${photo.keywords.split(',').join(', ')}
+        <div class="popup-folders">Folder: ${folderLinks}</div>
+        <div class="popup-keywords">Keywords: ${photo.keywords.split(',').join(', ')}</div>
+		<div class="popup-googlemaps">
+		<a target="_blank" href="https://maps.google.nl/?q=${photo.lat},${photo.long}">Open location in Google Maps</a>
+		</div>
       </div>
     `, {
 				maxWidth: 500,

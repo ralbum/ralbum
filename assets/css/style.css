@@ -677,6 +677,16 @@ a.image img {
 	text-align: left;
 }
 
+.popup-keywords {
+	margin-top: 10px;
+	text-align: left;
+}
+
+.popup-googlemaps {
+	margin-top: 10px;
+	text-align: left;
+}
+
 .popup-folders a {
 	color: blue;
 	text-decoration: underline;

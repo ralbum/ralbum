@@ -78,6 +78,20 @@
 				</div>
 			{% endif %}
 
+			{% if from_this_week|length > 0 %}
+				<div id="this_day" class="home_section">
+					<h1>This week in</h1>
+
+					{% for year,yearImages in from_this_week %}
+						<div class="this_day_year">
+							<h2>{{ year }}</h2>
+							{% embed "images.twig" with {'images': yearImages, 'source' : 'on_this_day'} %}
+							{% endembed %}
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+
 			{% if random_images|length > 0 %}
 				<div id="random_images" class="home_section">
 					<h1>Random images</h1>

@@ -19,7 +19,8 @@ class Setting
         'supported_video_extensions' => ['mp4', 'avi', 'mov'],
         'images_per_page' => 200,
         'latest_images_count' => 10,
-        'random_images_count' => 10
+        'random_images_count' => 10,
+        'view_mode_earlier_years' => 'week'
     ];
 
     public static function get($key)

@@ -329,9 +329,22 @@ class Search
 
     function getOnThisDay()
     {
-        $month = date('m');
-        $day = date('d');
-        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND date(date_taken) LIKE "%-' . $month . '-' . $day . '" ORDER BY date_taken DESC LIMIT 50');
+        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND strftime("%m-%d", date_taken) = strftime("%m-%d", "now") ORDER BY date_taken DESC LIMIT 50');
+        $result = $statement->execute();
+        $images = [];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $year = substr($row['date_taken'], 0, 4);
+            $image = new Image($row['file_path']);
+            if (file_exists($image->getDetailPath()) && file_exists($image->getThumbnailPath())) {
+                $images[$year][] = $image;
+            }
+        }
+        return $images;
+    }
+
+    function getFromThisWeek()
+    {
+        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND strftime("%W", date_taken) = strftime("%W", "NOW") ORDER BY date_taken DESC LIMIT 50');
         $result = $statement->execute();
         $images = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

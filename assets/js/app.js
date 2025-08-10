@@ -137,8 +137,15 @@ $(document).ready(function()
                             val = bytesToSize(val);
                         }
 
-                        items.push('<td>' + key + '</td>');
-                        items.push('<td>' + (val == false ? '' : val) + '</td>');
+                        if (key == "Raw Metadata") {
+                            items.push('<td>' + key + '</td>');
+                            items.push('<td>' + val + '</td>');
+                        } else {
+                            items.push('<td>' + key + '</td>');
+                            items.push('<td>' + (val == false ? '' : val) + '</td>');
+                        }
+
+
                         responseHtml.append($('<tr/>', {html: items.join('')}));
                     });
 

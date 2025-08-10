@@ -403,14 +403,18 @@ class App
         $pagination->currentPage = $this->getPage();
         $pagination->itemsPerPage = $imagesPerPage;
 
-        $latestImages = $onThisDay = $dataStats = [];
+        $latestImages = $onThisDay = $dataStats = $thisWeek = [];
 
         $randomImages = [];
 
         if (count($images) == 0 && count($this->parts) == 0 && Search::isSupported()) {
             $search = new \Ralbum\Search();
             $latestImages = $search->getLatestImages();
-            $onThisDay = $search->getOnThisDay();
+            if (isset($_GET['weekmode']) || Setting::get('view_mode_earlier_years') == 'week') {
+                $thisWeek = $search->getFromThisWeek();
+            } else {
+                $onThisDay = $search->getOnThisDay();
+            }
             $randomImages = $search->getRandom();
             $dataStats['index_count'] = $search->getIndexCount();
         }
@@ -425,6 +429,7 @@ class App
             'pagination' => $pagination,
             'latest_images' => $latestImages,
             'on_this_day' => $onThisDay,
+            'from_this_week' => $thisWeek,
             'random_images' => $randomImages,
             'data_stats' => $dataStats,
             'session' => $_SESSION
@@ -581,6 +586,11 @@ class App
             'filename' => $file->getName(),
             'folders' => explode('/', trim($file->getFolderName(), '/'))
         ];
+
+        if (isset($_GET['raw'])) {
+            echo '<pre>';
+            var_dump($metadata->getRawExifData()); die();
+        }
 
         $data = [
             'Keywords' => $metadata->getKeywords(),

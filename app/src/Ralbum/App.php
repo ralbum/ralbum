@@ -56,7 +56,8 @@ class App
     public function loadTemplate()
     {
         $loader = new \Twig\Loader\FilesystemLoader([BASE_DIR . '/app/src/Ralbum/Views']);
-        $twig = new \Twig\Environment($loader);
+        $twig = new \Twig\Environment($loader, ['debug' => true]);
+        $twig->addExtension(new \Twig\Extension\DebugExtension());
         $twig->addGlobal('base_url', BASE_URL);
         $twig->addGlobal('base_url_ralbum', BASE_URL_RALBUM);
         $twig->addGlobal('full_size', $_SESSION['full-size']);

@@ -1,10 +1,27 @@
 <div class="images">
 	{% for image in images %}
-		<a class="image" href="{{ image.preferredUrl }}{% if source %}&source={{ source }}{% endif %}">
+
+		{% set dateTaken = image.getMetadata().getDateTaken() %}
+		{% set isToday = false %}
+		{% set yearsAgo = null %}
+		{% if dateTaken %}
+			{# Zet timestamp om naar string en vergelijk met vandaag #}
+			{% if dateTaken|date('m-d') == "now"|date('m-d') and dateTaken|date('Y') != "now"|date('Y') %}
+				{% set isToday = true %}
+				{% set yearsAgo = "now"|date('Y') - dateTaken|date('Y') %}
+			{% endif %}
+		{% endif %}
+
+		{% set imgTitle = image.name %}
+		{% if yearsAgo and yearsAgo > 0 %}
+			{% set imgTitle = imgTitle ~ ' - Photo from exactly ' ~ yearsAgo ~ ' year' ~ (yearsAgo > 1 ? 's' : '') ~ ' ago' %}
+		{% endif %}
+
+		<a class="image{% if isToday %} today{% endif %}" href="{{ image.preferredUrl }}{% if source %}&source={{ source }}{% endif %}">
 			{% if image.isThumbnailCurrent == 1 %}
-				<img title="{{ image.name }}" alt="{{ image.name }}" id="{{ random() }}" src="{{ image.thumbnailUrl }}" />
+				<img title="{{ imgTitle }}" alt="{{ image.name }}" id="{{ random() }}" src="{{ image.thumbnailUrl }}" />
 			{% else %}
-				<img title="{{ image.name }}" alt="{{ image.name }}" id="{{ random() }}" src="{{ image.thumbnailUrl }}" data-src="{{ image.relativeLocation }}"/>
+				<img title="{{ imgTitle }} alt="{{ image.name }}" id="{{ random() }}" src="{{ image.thumbnailUrl }}" data-src="{{ image.relativeLocation }}"/>
 			{% endif %}
 		</a>
 	{% endfor %}

@@ -454,7 +454,11 @@ a.image {
 	border-radius: 5px;
 	padding: 4px;
 	text-align: center;
-	}
+}
+
+a.image.today {
+	background-color: #175cc4;
+}
 
 a.image img {
 	width: 100%;

@@ -10,6 +10,7 @@ class Metadata
     public function __construct($path)
     {
         if (file_exists($path)) {
+
             $this->exif = @exif_read_data($path);
 
             @getimagesize($path, $info);

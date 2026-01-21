@@ -360,7 +360,9 @@ class App
                 } elseif (in_array($extension, \Ralbum\Setting::get('supported_video_extensions'))) {
                     $otherFiles[] = new \Ralbum\Model\Video($fullPath);
                 } else {
-                    $otherFiles[] = $file;
+                    if (!in_array($file->getExtension(), ['xmp', 'cache'])) {
+                        $otherFiles[] = $file;
+                    }
                 }
             }
         }
@@ -593,26 +595,29 @@ class App
             var_dump($metadata->getRawExifData()); die();
         }
 
+        $dateFormat = Setting::get('date_format');
+
         $data = [
             'Keywords' => $metadata->getKeywords(),
             'Camera Make' => $metadata->getMake(),
             'Camera Model' => $metadata->getModel(),
             'Lens' => $metadata->getLens(),
-            'Date taken' => $metadata->getDateTaken('d-m-Y H:i'),
+            'Date taken' => $metadata->getDateTaken($dateFormat),
             'Shutterspeed' => $metadata->getFormattedShutterSpeed($metadata->getShutterSpeed()),
             'Aperture' => $metadata->getFormattedAperture($metadata->getAperture()),
             'ISO' => $metadata->getIso(),
             'Focal Length' => $metadata->getFormattedFocalLength($metadata->getFocalLength()),
             'GPS' => $metadata->getGpsData(),
             'Exposure' => trim($metadata->getExposureMode() . ', ' . $metadata->getExposureProgram(), ', '),
-            'Modification date' => $metadata->getLastModificationDate('d-m-Y H:i'),
-            'File date' => $metadata->getFileDate('d-m-Y H:i'),
-            'Orignal File Size' => $metadata->getFileSize(),
+            'Modification date' => $metadata->getLastModificationDate($dateFormat),
+            'File date' => $metadata->getFileDate($dateFormat),
+            'Original File Size' => $metadata->getFileSize(),
             'Original dimensions' => $metadata->getHeight() > 0 && $metadata->getWidth() > 0 ? $metadata->getHeight() . ' x ' . $metadata->getWidth() : false
         ];
 
         $response['data'] = $data;
 
+        header('Content-type: application/json');
         echo json_encode($response);
         exit;
     }

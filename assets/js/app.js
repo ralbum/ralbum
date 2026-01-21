@@ -89,9 +89,7 @@ $(document).ready(function()
         var imageSource = $('#slider img').attr('src');
         imageSource = changeImageUrl(imageSource, 'info');
 
-        $.ajax(imageSource).done(function(content) {
-
-            var result = JSON.parse(content);
+        $.ajax(imageSource).done(function(result) {
 
             if (result.result == true) {
                 var responseHtml = $('<table/>');
@@ -112,11 +110,6 @@ $(document).ready(function()
                 if (data) {
                     $.each(data, function(key, val) {
                         var items = [];
-
-                        // if (key.indexOf('Date') !== -1 && val != false) {
-                        //     dateObj = new Date(val * 1000);
-                        //     val = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString();
-                        // }
 
                         if (key.indexOf('GPS') !== -1 && val != false && val.length > 0) {
                             val = '<a target="_blank" href="https://maps.google.nl/?q=' + val.join(', ') +'">' + val.join(', ') +'</a>'
@@ -144,7 +137,6 @@ $(document).ready(function()
                             items.push('<td>' + key + '</td>');
                             items.push('<td>' + (val == false ? '' : val) + '</td>');
                         }
-
 
                         responseHtml.append($('<tr/>', {html: items.join('')}));
                     });
@@ -437,9 +429,7 @@ $(document).ready(function()
 
     $('#system').on('click', function()
     {
-
         $('#log').toggle();
-
     });
 
     function updateFullSizeButton()

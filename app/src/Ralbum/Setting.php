@@ -20,7 +20,8 @@ class Setting
         'images_per_page' => 200,
         'latest_images_count' => 10,
         'random_images_count' => 10,
-        'view_mode_earlier_years' => 'week'
+        'view_mode_earlier_years' => 'week',
+        'date_format' => 'd-m-Y H:i'
     ];
 
     public static function get($key)

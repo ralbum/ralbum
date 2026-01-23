@@ -46,7 +46,7 @@ You can then run this command to run ralbum, replace '/var/www/testfoto' with th
 ```
 
 If you want to use custom settings you can use this extra argument (after the other -v arguments), but the default settings work for most users.
-You can find the additional settings in /sub/app/src/Ralbum/Search.php
+You can find the additional settings in sub/app/src/Ralbum/Setting.php
 
 ```
 -v /location/of/your/settings.json:/var/www/html/settings.json

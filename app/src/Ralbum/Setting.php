@@ -4,8 +4,6 @@ namespace Ralbum;
 
 class Setting
 {
-    protected static $settingFile = BASE_DIR . '/' . 'settings.json';
-
     protected static $settings = null;
 
     protected static $defaultSettings = [
@@ -21,14 +19,18 @@ class Setting
         'latest_images_count' => 10,
         'random_images_count' => 10,
         'view_mode_earlier_years' => 'week',
-        'date_format' => 'd-m-Y H:i'
+        'date_format' => 'd-m-Y H:i',
+        'order_by_date_taken' => true
     ];
 
     public static function get($key)
     {
+        $settingFile = BASE_DIR . '/' . 'settings.json';
+
         if (self::$settings == null) {
-            if (file_exists(self::$settingFile)) {
-                self::$settings = json_decode(file_get_contents(self::$settingFile), true);
+
+            if (file_exists($settingFile)) {
+                self::$settings = json_decode(file_get_contents($settingFile), true);
             } else {
                 self::$settings = self::$defaultSettings;
             }
@@ -45,7 +47,6 @@ class Setting
         if (isset(self::$defaultSettings[$key])) {
             return self::$defaultSettings[$key];
         }
-
 
         return null;
     }

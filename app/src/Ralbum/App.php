@@ -338,7 +338,7 @@ class App
         if (isset($_GET['direction']) && in_array($_GET['direction'], ['asc', 'desc'])) {
             $_SESSION['direction'] = $_GET['direction'];
         }
-                        
+
         $files = scandir($listBaseDir, $_SESSION['direction'] == 'desc' ? SCANDIR_SORT_DESCENDING : SCANDIR_SORT_ASCENDING);
 
         foreach ($files as $file) {

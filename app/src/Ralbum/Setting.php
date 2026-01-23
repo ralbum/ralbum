@@ -7,7 +7,7 @@ class Setting
     protected static $settings = null;
 
     protected static $defaultSettings = [
-        'image_base_dir' => '/var/www/testfoto',
+        'image_base_dir' => '/var/data',
         'thumbnail_width' => 120,
         'thumbnail_height' => 80,
         'detail_width' => 1024,

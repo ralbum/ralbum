@@ -251,11 +251,7 @@ class Search
 
     public function getIndexCount()
     {
-        $statement = $this->db->prepare('SELECT count(*) FROM files');
-        $result = $statement->execute();
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            return $row['count(*)'];
-        }
+        return $this->db->querySingle('SELECT count(*) FROM files');
     }
 
     public function getLatestImages()
@@ -274,22 +270,12 @@ class Search
 
     public function getImageCount()
     {
-        $statement = $this->db->prepare('SELECT count(file_path) as file_count FROM files');
-        $result = $statement->execute();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            return $row['file_count'];
-        }
+        return $this->db->querySingle('SELECT count(file_path) as file_count FROM files');
     }
 
     public function getImagesSize()
     {
-        $statement = $this->db->prepare('SELECT sum(file_size) as file_size_total FROM files');
-        $result = $statement->execute();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            return $row['file_size_total'];
-        }
+        return $this->db->querySingle('SELECT sum(file_size) as file_size_total FROM files');
     }
 
     public function getStats()
@@ -299,9 +285,7 @@ class Search
 
         $keywords = [];
         $folders = [];
-        $keywordCount = 0;
         $withoutKeywords = 0;
-        $imagesWithKeywords = 0;
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 
@@ -322,9 +306,7 @@ class Search
             if (count($thisKeywords) == 0) {
                 $withoutKeywords++;
             } else {
-                $imagesWithKeywords++;
                 foreach ($thisKeywords as $thisKeyword) {
-                    $keywordCount++;
                     if (isset($keywords[$thisKeyword])) {
                         $keywords[$thisKeyword]++;
                     } else {
@@ -334,18 +316,31 @@ class Search
             }
         }
 
+        $oldestPhoto = $this->db->querySingle('SELECT * FROM files WHERE date_taken > "1980-01-01" ORDER BY date_taken ASC LIMIT 1', true);
+        if ($oldestPhoto) {
+            $oldestPhoto['folder'] = dirname($oldestPhoto['file_path']);
+            $oldestPhoto['basename'] = basename($oldestPhoto['file_path']);
+        }
+
+        $mostRecentPhoto = $this->db->querySingle('SELECT * FROM files WHERE date_taken > "1980-01-01" ORDER BY date_taken DESC LIMIT 1', true);
+        if ($mostRecentPhoto) {
+            $mostRecentPhoto['folder'] = dirname($mostRecentPhoto['file_path']);
+            $mostRecentPhoto['basename'] = basename($mostRecentPhoto['file_path']);
+
+        }
+
         arsort($keywords);
 
         return [
             'keywords' => $keywords,
             'folders' => $folders,
+            'oldest_photo' => $oldestPhoto,
+            'most_recent_photo' => $mostRecentPhoto,
             'count' => $this->getImageCount(),
             'image_file_size' => $this->bytesToSize($this->getImagesSize()),
-            'keyword_count' => $keywordCount,
             'popular_cameras' => $this->getUniqueCameras('usage'),
             'popular_lenses' => $this->getUniqueLenses('usage'),
-            'without_keywords' => $withoutKeywords,
-            'average_number_keywords' => round($imagesWithKeywords > 0 ? ($keywordCount/$imagesWithKeywords) : 0, 3)
+            'without_keywords' => $withoutKeywords
         ];
     }
 

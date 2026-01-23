@@ -17,7 +17,7 @@
 			{% set imgTitle = imgTitle ~ ' - Photo from exactly ' ~ yearsAgo ~ ' year' ~ (yearsAgo > 1 ? 's' : '') ~ ' ago' %}
 		{% endif %}
 
-		<a class="image{% if isToday %} today{% endif %}" href="{{ image.preferredUrl }}{% if source %}&source={{ source }}{% endif %}">
+		<a data-filename="{{ image.name }}" class="image{% if isToday %} today{% endif %}" href="{{ image.preferredUrl }}{% if source %}&source={{ source }}{% endif %}">
 			{% if image.isThumbnailCurrent == 1 %}
 				<img title="{{ imgTitle }}" alt="{{ image.name }}" id="{{ random() }}" src="{{ image.thumbnailUrl }}" />
 			{% else %}

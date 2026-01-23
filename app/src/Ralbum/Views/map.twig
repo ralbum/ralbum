@@ -38,12 +38,18 @@
 
 			const folderLinks = generateFolderLinks(photo.folders);
 
+			let fullPath = baseUrl + '/';
+			photo.folders.forEach(function(el){
+				fullPath += el + '/';
+			});
+			fullPath += '#' + photo.file_name;
+
 			marker.bindPopup(`
       <div class="popup-content">
         <div class="popup-img-container">
           <img class="popup-img" src="${photo.file_original}" alt="" />
         </div>
-        <div class="popup-folders">Folder: ${folderLinks}</div>
+        <div class="popup-folders">Folder: ${folderLinks} / <a href="${fullPath}">${photo.file_name}</a></div>
         <div class="popup-keywords">Keywords: ${photo.keywords.split(',').join(', ')}</div>
 		<div class="popup-googlemaps">
 		<a target="_blank" href="https://maps.google.nl/?q=${photo.lat},${photo.long}">Open location in Google Maps</a>

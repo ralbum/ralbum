@@ -479,4 +479,15 @@ $(document).ready(function()
 
     });
 
+    if (window.location.hash) {
+        let filename = decodeURIComponent(window.location.hash.substring(1));
+
+        const photoElement = document.querySelector(`[data-filename="${filename}"]`);
+        console.log(photoElement);
+        if (photoElement) {
+            startGallery($(photoElement));
+        }
+    }
+
 });
+

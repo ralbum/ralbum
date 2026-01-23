@@ -39,16 +39,16 @@
 					<td>{{ keywords|length }}</td>
 				</tr>
 				<tr>
-					<td>Total keywords</td>
-					<td>{{ keyword_count }}</td>
-				</tr>
-				<tr>
 					<td>Without keywords</td>
 					<td>{{ without_keywords }}</td>
 				</tr>
 				<tr>
-					<td>Average number of keywords per image</td>
-					<td>{{ average_number_keywords }}</td>
+					<td>Oldest photo is <a href="{{ base_url }}{{ oldest_photo.folder }}#{{ oldest_photo.basename }}">{{ oldest_photo.file_name }}</a>, taken on {{ oldest_photo.date_taken|date('d-m-Y') }}</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>Most recent photo is <a href="{{ base_url }}{{ most_recent_photo.folder }}#{{ most_recent_photo.basename }}">{{ most_recent_photo.file_name }}</a>, taken on {{ most_recent_photo.date_taken|date('d-m-Y') }}</td>
+					<td></td>
 				</tr>
 			</table>
 			<h1 style="padding-top: 26px;">Popular cameras</h1>

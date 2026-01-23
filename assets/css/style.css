@@ -717,6 +717,14 @@ table.stats_table tr td {
 	padding : 10px;
 }
 
+table.stats_table tr td:nth-child(2), table.stats_table tr th:nth-child(2) {
+	text-align: right;
+}
+
+table.stats_table tr th:nth-child(2) {
+	width: 70px;
+}
+
 table.stats_table tr:nth-child(odd) {
 	background : #333;
 }
@@ -796,6 +804,10 @@ a.play-link {
 	background-image : url('../images/svg/play.svg');
 	background-position : center;
 	vertical-align: center;
+}
+
+th.th-value {
+	width: 70px
 }
 
 @media screen and (max-width:800px) {

@@ -3,7 +3,6 @@
 {% block content %}
 	{% embed "header.twig" %}
 	{% endembed %}
-
 	<div id="navigation">
 		<h1>Folders</h1>
 		<table class="stats_table">
@@ -19,9 +18,7 @@
 			{% endfor %}
 		</table>
 	</div>
-
 	<div id="content">
-
 		<div class="stats_section">
 			<h1>Stats</h1>
 			<table class="stats_table">
@@ -30,8 +27,12 @@
 					<th>Value</th>
 				</tr>
 				<tr>
-					<td>Total count</td>
+					<td>Image count</td>
 					<td>{{ count }}</td>
+				</tr>
+				<tr>
+					<td>Image size</td>
+					<td>{{ image_file_size }}</td>
 				</tr>
 				<tr>
 					<td>Unique keywords</td>
@@ -50,8 +51,33 @@
 					<td>{{ average_number_keywords }}</td>
 				</tr>
 			</table>
+			<h1 style="padding-top: 26px;">Popular cameras</h1>
+			<table class="stats_table">
+				<tr>
+					<th>Model</th>
+					<th>Count</th>
+				</tr>
+				{% for camera, count in popular_cameras %}
+					<tr>
+						<td><a href="{{ base_url_ralbum }}/search?camera={{ camera }}">{{ camera }}</a></td>
+						<td>{{ count }}</td>
+					</tr>
+				{% endfor %}
+			</table>
+			<h1 style="padding-top: 26px;">Popular lenses</h1>
+			<table class="stats_table">
+				<tr>
+					<th>Lens</th>
+					<th>Count</th>
+				</tr>
+				{% for lens, count in popular_lenses %}
+					<tr>
+						<td><a href="{{ base_url_ralbum }}/search?lens={{ lens }}">{{ lens }}</a></td>
+						<td>{{ count }}</td>
+					</tr>
+				{% endfor %}
+			</table>
 		</div>
-
 		<div class="stats_section">
 			<h1>Keywords</h1>
 			<table class="stats_table">
@@ -65,13 +91,9 @@
 						<td>{{ count }}</td>
 					</tr>
 				{% endfor %}
-
 			</table>
 		</div>
-
-
 	</div>
-
 {% endblock %}
 
 

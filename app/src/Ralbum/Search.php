@@ -30,7 +30,7 @@ class Search
 
     public function createTable()
     {
-        $this->db->exec('CREATE TABLE IF NOT EXISTS files (file_path STRING, file_name STRING, keywords STRING, file_type STRING, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)');
+        $this->db->exec('CREATE TABLE IF NOT EXISTS files (file_path STRING, file_name STRING, keywords STRING, file_type STRING, file_size INT, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)');
         $this->db->exec('CREATE INDEX IF NOT EXISTS file_type_name on files(file_type)');
     }
 
@@ -58,6 +58,7 @@ class Search
             'file_name',
             'keywords',
             'file_type',
+            'file_size',
             // metadata
             'shutterspeed',
             'iso',
@@ -82,6 +83,10 @@ class Search
         $statement->bindValue(':file_name', $filename);
         $statement->bindValue(':file_type', $type);
 
+        $baseDir = Setting::get('image_base_dir');
+
+        $statement->bindValue(':file_size', filesize($baseDir. $key));
+
         foreach ($dataKeys as $val) {
             if (!in_array($val, ['file_path', 'file_name', 'file_type'])) {
                 if (isset($metadata[$val])) {
@@ -102,6 +107,7 @@ class Search
         $filters[] = 'limit_to_keyword_search';
         $filters[] = 'season';
         $filters[] = 'daytime';
+        $filters[] = 'day';
 
         foreach ($filters as $filter) {
             if (isset($_REQUEST[$filter]) && strlen($_REQUEST[$filter]) > 0) {
@@ -174,6 +180,14 @@ class Search
                 case 'autumn':
                     $query .= ' AND strftime("%m", date_taken) IN ("09","10","11") ';
                     break;
+            }
+        }
+
+        if (isset($_REQUEST['weekday']) && strlen($_REQUEST['weekday']) > 0) {
+            foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $index => $day) {
+                if ($_REQUEST['weekday'] == $index+1) {
+                    $query .= ' AND strftime("%w", date_taken) = "' . $index . '" ';
+                }
             }
         }
 
@@ -268,6 +282,16 @@ class Search
         }
     }
 
+    public function getImagesSize()
+    {
+        $statement = $this->db->prepare('SELECT sum(file_size) as file_size_total FROM files');
+        $result = $statement->execute();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            return $row['file_size_total'];
+        }
+    }
+
     public function getStats()
     {
         $statement = $this->db->prepare('SELECT * FROM files');
@@ -275,14 +299,11 @@ class Search
 
         $keywords = [];
         $folders = [];
-        $count = 0;
         $keywordCount = 0;
         $withoutKeywords = 0;
         $imagesWithKeywords = 0;
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-
-            $count++;
 
             if (substr_count($row['file_path'], '/') >= 2) {
                 $folder = substr($row['file_path'], 1, strpos($row['file_path'], '/', 1));
@@ -311,8 +332,6 @@ class Search
                     }
                 }
             }
-
-
         }
 
         arsort($keywords);
@@ -320,11 +339,26 @@ class Search
         return [
             'keywords' => $keywords,
             'folders' => $folders,
-            'count' => $count,
+            'count' => $this->getImageCount(),
+            'image_file_size' => $this->bytesToSize($this->getImagesSize()),
             'keyword_count' => $keywordCount,
+            'popular_cameras' => $this->getUniqueCameras('usage'),
+            'popular_lenses' => $this->getUniqueLenses('usage'),
             'without_keywords' => $withoutKeywords,
             'average_number_keywords' => round($imagesWithKeywords > 0 ? ($keywordCount/$imagesWithKeywords) : 0, 3)
         ];
+    }
+
+    function bytesToSize($bytes) {
+        $sizes = [4 => 'TB', 3 => 'GB', 2 => 'MB', 1 => 'kB'];
+        foreach ($sizes as $pow => $description) {
+            $value = pow(1024, $pow);
+            if ($bytes >= $value) {
+                return round($bytes /$value, 1) . ' ' . $description;
+            }
+        }
+
+        return round($bytes, 1) . ' Bytes';
     }
 
     function getOnThisDay()
@@ -372,10 +406,11 @@ class Search
         return $images;
     }
 
-    public function getUniqueCameras()
+    public function getUniqueCameras($sortBy = 'name')
     {
         $cams = [];
-        $statement = $this->db->prepare('SELECT make, model FROM files WHERE length(TRIM(make)) > 1 AND length(TRIM(model)) > 1');
+        $camsPopular = [];
+        $statement = $this->db->prepare('SELECT make, model, count(model) as model_count FROM files WHERE length(TRIM(make)) > 1 AND length(TRIM(model)) > 1 GROUP BY model ORDER BY model_count DESC');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $make = $row['make'];
@@ -390,7 +425,12 @@ class Search
 
             if (strlen($camName) > 0) {
                 $cams[$model] = $camName;
+                $camsPopular[$camName] = $row['model_count'];
             }
+        }
+
+        if ($sortBy == 'usage') {
+            return array_slice($camsPopular, 0, 10);
         }
 
         asort($cams);
@@ -398,11 +438,12 @@ class Search
         return $cams;
     }
 
-    public function getUniqueLenses()
+    public function getUniqueLenses($sortBy = 'name')
     {
         $lenses = [];
+        $lensesPopular = [];
 
-        $statement = $this->db->prepare('SELECT lens FROM files WHERE length(TRIM(lens)) > 1');
+        $statement = $this->db->prepare('SELECT lens, count(lens) as lens_count FROM files WHERE length(TRIM(lens)) > 1 GROUP BY lens ORDER BY lens_count DESC');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $lens = $row['lens'];
@@ -410,7 +451,12 @@ class Search
             $lens = trim($lens, '-');
             if (strlen($lens) > 0) {
                 $lenses[$lens] = $lens;
+                $lensesPopular[$lens] = $row['lens_count'];
             }
+        }
+
+        if ($sortBy == 'usage') {
+            return array_slice($lensesPopular, 0, 10);
         }
 
         asort($lenses);

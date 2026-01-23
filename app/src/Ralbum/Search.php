@@ -107,7 +107,7 @@ class Search
         $filters[] = 'limit_to_keyword_search';
         $filters[] = 'season';
         $filters[] = 'daytime';
-        $filters[] = 'day';
+        $filters[] = 'weekday';
 
         foreach ($filters as $filter) {
             if (isset($_REQUEST[$filter]) && strlen($_REQUEST[$filter]) > 0) {

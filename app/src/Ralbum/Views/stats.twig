@@ -3,22 +3,22 @@
 {% block content %}
 	{% embed "header.twig" %}
 	{% endembed %}
-	<div id="navigation">
-		<h1>Folders</h1>
-		<table class="stats_table">
-			<tr>
-				<th>Name</th>
-				<th>Count</th>
-			</tr>
-			{% for name, count in folders %}
+	<div id="content_stats">
+		<div class="stats_section">
+			<h1>Folders</h1>
+			<table class="stats_table">
 				<tr>
-					<td><a href="{{ base_url }}/{{ name }}">{{ name }}</a></td>
-					<td>{{ count }}</td>
+					<th>Name</th>
+					<th>Count</th>
 				</tr>
-			{% endfor %}
-		</table>
-	</div>
-	<div id="content">
+				{% for name, count in folders %}
+					<tr>
+						<td><a href="{{ base_url }}/{{ name }}">{{ name }}</a></td>
+						<td>{{ count }}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
 		<div class="stats_section">
 			<h1>Stats</h1>
 			<table class="stats_table">

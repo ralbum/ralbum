@@ -340,6 +340,15 @@ div.feature-links a {
 	padding: 10px 10px 10px 0;
 }
 
+#content_stats {
+	padding: 16px;
+	grid-column: 1 / -1;
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+}
+
 #content p {
 	padding: 6px;
 	margin: 0 0 8px 0;
@@ -399,10 +408,6 @@ div.other-file, div.video-links {
 	overflow : hidden;
 	margin-bottom : 2px;
 	border-radius: 3px;
-	/*background-image : url('../images/svg/download.svg');*/
-	/*background-position: top right;*/
-	/*background-size: 30px;*/
-	/*background-repeat: no-repeat;*/
 }
 
 .file-name {
@@ -697,9 +702,7 @@ a.image img {
 }
 
 .stats_section {
-	width: 49%;
-	padding: 0 1%;
-	float: left;
+	column-gap: 40px;
 }
 
 table.stats_table {
@@ -863,6 +866,10 @@ th.th-value {
 
 	#map {
 		height: 400px;
+	}
+
+	#content_stats {
+		grid-template-columns: 1fr;
 	}
 
 }

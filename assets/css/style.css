@@ -229,6 +229,7 @@ div.this_day_year {
 	top : 0px;
 	background: #000;
 	padding: 10px;
+	z-index:20;
 }
 
 #search.search_active {

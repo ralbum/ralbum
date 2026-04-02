@@ -21,38 +21,45 @@
 			attribution: '© OpenStreetMap contributors'
 		}).addTo(map);
 
+		function escapeHtml(text) {
+			const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+			return String(text == null ? '' : text).replace(/[&<>"']/g, ch => map[ch]);
+		}
+
 		const photoData = {{ images|raw }};
 		const markers = L.markerClusterGroup();
-		const baseUrl = "{{ base_url }}";
+		const baseUrl = "{{ base_url|e('js') }}";
 
 		photoData.forEach(photo => {
 			const marker = L.marker([photo.lat, photo.long]);
 
 			function generateFolderLinks(folders) {
-				let fullPath = "";
+				let encPath = "";
 				return folders.map((folder, index) => {
-					fullPath += folder + (index < folders.length - 1 ? "/" : "");
-					return `<a href="${baseUrl}/${fullPath}" target="_blank">${folder}</a>`;
+					encPath += (index > 0 ? "/" : "") + encodeURIComponent(folder);
+					return `<a href="${baseUrl}/${encPath}" target="_blank">${escapeHtml(folder)}</a>`;
 				}).join(" / ");
 			}
 
 			const folderLinks = generateFolderLinks(photo.folders);
 
 			let fullPath = baseUrl + '/';
-			photo.folders.forEach(function(el){
-				fullPath += el + '/';
+			photo.folders.forEach(function (el) {
+				fullPath += encodeURIComponent(el) + '/';
 			});
-			fullPath += '#' + photo.file_name;
+			fullPath += '#' + encodeURIComponent(photo.file_name);
+
+			const keywordsText = escapeHtml((photo.keywords || '').split(',').join(', '));
 
 			marker.bindPopup(`
       <div class="popup-content">
         <div class="popup-img-container">
-          <img class="popup-img" src="${photo.file_original}" alt="" />
+          <img class="popup-img" src="${escapeHtml(photo.file_original)}" alt="" />
         </div>
-        <div class="popup-folders">Folder: ${folderLinks} / <a href="${fullPath}">${photo.file_name}</a></div>
-        <div class="popup-keywords">Keywords: ${photo.keywords.split(',').join(', ')}</div>
+        <div class="popup-folders">Folder: ${folderLinks} / <a href="${escapeHtml(fullPath)}">${escapeHtml(photo.file_name)}</a></div>
+        <div class="popup-keywords">Keywords: ${keywordsText}</div>
 		<div class="popup-googlemaps">
-		<a target="_blank" href="https://maps.google.nl/?q=${photo.lat},${photo.long}">Open location in Google Maps</a>
+		<a target="_blank" href="https://maps.google.nl/?q=${encodeURIComponent(photo.lat)},${encodeURIComponent(photo.long)}">Open location in Google Maps</a>
 		</div>
       </div>
     `, {

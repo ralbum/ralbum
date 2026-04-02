@@ -69,6 +69,9 @@ class File
     public function isValidPath()
     {
         $path = realpath($this->path);
+        if ($path === false) {
+            return false;
+        }
 
         $symlinkedDirs = \Ralbum\Setting::get('symlinked_directories');
         if (empty($symlinkedDirs)) {
@@ -82,8 +85,14 @@ class File
         $allowedPaths = array_merge($allowedPaths, $symlinkedDirs);
 
         foreach ($allowedPaths as $allowedPath) {
-
-            if (substr($path, 0, strlen($allowedPath)) == $allowedPath) {
+            $allowedPath = rtrim($allowedPath, '/\\');
+            $allowedReal = realpath($allowedPath);
+            if ($allowedReal === false) {
+                continue;
+            }
+            $len = strlen($allowedReal);
+            if (strncmp($path, $allowedReal, $len) === 0
+                && (strlen($path) === $len || $path[$len] === DIRECTORY_SEPARATOR)) {
                 return true;
             }
         }

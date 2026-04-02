@@ -56,8 +56,11 @@ class App
     public function loadTemplate()
     {
         $loader = new \Twig\Loader\FilesystemLoader([BASE_DIR . '/app/src/Ralbum/Views']);
-        $twig = new \Twig\Environment($loader, ['debug' => true]);
-        $twig->addExtension(new \Twig\Extension\DebugExtension());
+        $twigDebug = \Ralbum\Setting::get('twig_debug') === true;
+        $twig = new \Twig\Environment($loader, ['debug' => $twigDebug]);
+        if ($twigDebug) {
+            $twig->addExtension(new \Twig\Extension\DebugExtension());
+        }
         $twig->addGlobal('base_url', BASE_URL);
         $twig->addGlobal('base_url_ralbum', BASE_URL_RALBUM);
         $twig->addGlobal('full_size', $_SESSION['full-size']);
@@ -75,8 +78,7 @@ class App
         // get request path
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-        // find base URL
-        if (substr($uri, 0, strlen(BASE_URL))) {
+        if (strpos($uri, BASE_URL) === 0) {
             $uri = substr($uri, strlen(BASE_URL));
         }
 
@@ -200,11 +202,21 @@ class App
 
         $file = new \Ralbum\Model\File(\Ralbum\Setting::get('image_base_dir') . '/' . implode('/', $this->parts));
 
+        if (!$file->fileExists() || !is_file($file->getPath()) || !$file->isValidPath()) {
+            header('HTTP/1.0 404 Not Found');
+            http_response_code(404);
+            $variables['message'] = 'File not found';
+            $variables['link'] = BASE_URL . '/';
+            echo $this->twig->render('notfound.twig', $variables);
+            return;
+        }
+
         header('Content-Type:' . \Defr\PhpMimeType\MimeType::get(new \SplFileInfo($file->getPath())));
 
         if (!in_array($file->getExtension(), \Ralbum\Setting::get('supported_extensions'))) {
             header('Content-Description: File Transfer');
-            header('Content-Disposition: attachment; filename=' . basename($file->getPath()));
+            $filename = str_replace(["\r", "\n"], '', basename($file->getPath()));
+            header('Content-Disposition: attachment; filename="' . str_replace('"', '\\"', $filename) . '"');
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -226,11 +238,7 @@ class App
 
         $file = new \Ralbum\Model\File(\Ralbum\Setting::get('image_base_dir') . '/' . implode('/', $this->parts));
 
-        if (!$file->isValidPath()) {
-            return false;
-        }
-
-        if (!$file->fileExists()) {
+        if (!$file->fileExists() || !is_file($file->getPath()) || !$file->isValidPath()) {
             return false;
         }
 
@@ -589,11 +597,6 @@ class App
             'filename' => $file->getName(),
             'folders' => explode('/', trim($file->getFolderName(), '/'))
         ];
-
-        if (isset($_GET['raw'])) {
-            echo '<pre>';
-            var_dump($metadata->getRawExifData()); die();
-        }
 
         $dateFormat = Setting::get('date_format');
 

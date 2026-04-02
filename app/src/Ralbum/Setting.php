@@ -20,7 +20,8 @@ class Setting
         'random_images_count' => 10,
         'view_mode_earlier_years' => 'week',
         'date_format' => 'd-m-Y H:i',
-        'order_by_date_taken' => true
+        'order_by_date_taken' => true,
+        'twig_debug' => false
     ];
 
     public static function get($key)

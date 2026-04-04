@@ -35,14 +35,21 @@ You can install this using Docker or on your base system, Docker is the easiest 
 docker pull ralbum/ralbum
 ```
 
-You can then run this command to run ralbum, replace '/var/www/testfoto' with the image directory on your server. The two other volumes (the lines with the `-v`) are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder.
+You can create a docker-compose.yml file and replace '/var/www/testfoto' with the image directory on your server. The other volumes are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder. After creating the docker-compose.yml you can start the container using `docker compose update -d` (or `docker-compose up -d` on older docker systems)
 
 ```
-/usr/bin/docker run --name ralbum_live \
-        -v /var/www/testfoto:/var/data \
-        -v /var/ralbum/cache/live:/var/www/html/cache \
-        -v /var/ralbum/data/live:/var/www/html/data \
-        -d -p 1247:80 ralbum/ralbum
+services:
+  ralbum_live:
+    image: ralbum/ralbum
+    container_name: ralbum_live
+    ports:
+      - "1247:80"
+    volumes:
+      - /var/www/testfoto:/var/data
+      - /var/ralbum/cache/live:/var/www/html/cache
+      - /var/ralbum/data/live:/var/www/html/data
+    restart: unless-stopped
+
 ```
 
 If you want to use custom settings you can use this extra argument (after the other -v arguments), but the default settings work for most users.

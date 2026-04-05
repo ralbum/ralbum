@@ -21,7 +21,7 @@ If you leave the main folder of your images empty, you will see a list of recent
 
 ### Search
 You can search (if you have cron enabled, see below) for images using the search box on the top right. You can enter multiple words to further
-narrow the results.
+narrow the results. Images are indexed using the EXIF information as well as their corresponding .XMP files. This covers keywords in applications like Lightroom and Darktable.
 
 ### Map
 Images with geographical information embedded in the EXIF can be displayed on a map. Open the the submenu of the search function to locate the link to the map.

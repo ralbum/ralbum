@@ -31,11 +31,8 @@ Images with geographical information embedded in the EXIF can be displayed on a 
 You can install this using Docker or on your base system, Docker is the easiest way because you won't have to check for certain software compatibility. You _do_ need to install Docker of course.
 
 ### Installation using Docker
-```
-docker pull ralbum/ralbum
-```
 
-You can create a docker-compose.yml file and replace '/var/www/testfoto' with the image directory on your server. The other volumes are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder. After creating the docker-compose.yml you can start the container using `docker compose update -d` (or `docker-compose up -d` on older docker systems)
+Create a docker-compose.yml file and replace '/var/www/testfoto' with the image directory on your server. The other volumes are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder. After creating the docker-compose.yml you can start the container using `docker compose update -d` (or `docker-compose up -d` on older docker systems)
 
 ```
 services:
@@ -52,11 +49,11 @@ services:
 
 ```
 
-If you want to use custom settings you can use this extra argument (after the other -v arguments), but the default settings work for most users.
+If you want to use custom settings you can add this extra volume, but the default settings work for most users.
 You can find the additional settings in sub/app/src/Ralbum/Setting.php
 
 ```
--v /location/of/your/settings.json:/var/www/html/settings.json
+- /location/of/your/settings.json:/var/www/html/settings.json
 ```
 
 If you have your docker container running you can use that as-is but it's better to have that running on it's on own host/domain (and without the port number), here is the relevant apache configuration for your VirtualHost, again, replace the portnumber if you wish.

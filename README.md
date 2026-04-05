@@ -32,7 +32,7 @@ You can install this using Docker or on your base system, Docker is the easiest 
 
 ### Installation using Docker
 
-Create a docker-compose.yml file and replace '/var/www/testfoto' with the image directory on your server. The other volumes are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder. After creating the docker-compose.yml you can start the container using `docker compose update -d` (or `docker-compose up -d` on older docker systems)
+Create a docker-compose.yml file and replace '/var/www/testfoto' with the image directory on your server. The other volumes are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder. After creating the docker-compose.yml you can start the container using `docker compose up -d` (or `docker-compose up -d` on older docker systems)
 
 ```
 services:

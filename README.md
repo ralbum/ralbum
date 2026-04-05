@@ -71,14 +71,6 @@ If you want to use the search feature you need to run a cronjob. Running the cro
 /usr/bin/docker exec ralbum_live /var/www/html/ralbum_cron.sh
 ```
 
-That's it for the installation, if you want to you can also build it yourself using:
-The `build` folder contains a Dockerfile, instructions for installing:
-Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
-
-```bash
-docker build --no-cache -t ralbum .
-```
-
 
 ## Installation on your base system
 

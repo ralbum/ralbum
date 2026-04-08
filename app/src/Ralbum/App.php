@@ -188,7 +188,7 @@ class App
                 return;
             }
 
-            header('Content-Type:' . \Defr\PhpMimeType\MimeType::get(new \SplFileInfo($image->getPath())));
+            header('Content-Type:' . mime_content_type($image->getPath()));
             readfile($image->getPath());
         }
 
@@ -211,7 +211,7 @@ class App
             return;
         }
 
-        header('Content-Type:' . \Defr\PhpMimeType\MimeType::get(new \SplFileInfo($file->getPath())));
+        header('Content-Type:' . mime_content_type($file->getPath()));
 
         if (!in_array($file->getExtension(), \Ralbum\Setting::get('supported_extensions'))) {
             header('Content-Description: File Transfer');
@@ -242,7 +242,7 @@ class App
             return false;
         }
 
-        $mimeType = \Defr\PhpMimeType\MimeType::get(new \SplFileInfo($file->getPath()));
+        $mimeType = mime_content_type($file->getPath());
 
         if ($mimeType == 'audio/mp4') {
             $mimeType = 'video/mp4';

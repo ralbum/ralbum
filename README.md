@@ -21,7 +21,7 @@ If you leave the main folder of your images empty, you will see a list of recent
 
 ### Search
 You can search (if you have cron enabled, see below) for images using the search box on the top right. You can enter multiple words to further
-narrow the results.
+narrow the results. Images are indexed using the EXIF information as well as their corresponding .XMP files. This covers keywords in applications like Lightroom and Darktable.
 
 ### Map
 Images with geographical information embedded in the EXIF can be displayed on a map. Open the the submenu of the search function to locate the link to the map.
@@ -31,25 +31,29 @@ Images with geographical information embedded in the EXIF can be displayed on a 
 You can install this using Docker or on your base system, Docker is the easiest way because you won't have to check for certain software compatibility. You _do_ need to install Docker of course.
 
 ### Installation using Docker
-```
-docker pull ralbum/ralbum
-```
 
-You can then run this command to run ralbum, replace '/var/www/testfoto' with the image directory on your server. The two other volumes (the lines with the `-v`) are optional but they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder.
+Create a docker-compose.yml file and replace '/var/www/testfoto' with the image directory on your server. The other volumes are not required but highly recommended, they make it easier to upgrade to a new version later (without having to rebuild the cache and index). Make sure your docker instance has write access to the cache and data folder. After creating the docker-compose.yml you can start the container using `docker compose up -d` (or `docker-compose up -d` on older docker systems)
 
 ```
-/usr/bin/docker run --name ralbum_live \
-        -v /var/www/testfoto:/var/data \
-        -v /var/ralbum/cache/live:/var/www/html/cache \
-        -v /var/ralbum/data/live:/var/www/html/data \
-        -d -p 1247:80 ralbum/ralbum
+services:
+  ralbum_live:
+    image: ralbum/ralbum
+    container_name: ralbum_live
+    ports:
+      - "1247:80"
+    volumes:
+      - /var/www/testfoto:/var/data
+      - /var/ralbum/cache/live:/var/www/html/cache
+      - /var/ralbum/data/live:/var/www/html/data
+    restart: unless-stopped
+
 ```
 
-If you want to use custom settings you can use this extra argument (after the other -v arguments), but the default settings work for most users.
+If you want to use custom settings you can add this extra volume, but the default settings work for most users.
 You can find the additional settings in sub/app/src/Ralbum/Setting.php
 
 ```
--v /location/of/your/settings.json:/var/www/html/settings.json
+- /location/of/your/settings.json:/var/www/html/settings.json
 ```
 
 If you have your docker container running you can use that as-is but it's better to have that running on it's on own host/domain (and without the port number), here is the relevant apache configuration for your VirtualHost, again, replace the portnumber if you wish.
@@ -65,14 +69,6 @@ If you want to use the search feature you need to run a cronjob. Running the cro
 
 ```bash
 /usr/bin/docker exec ralbum_live /var/www/html/ralbum_cron.sh
-```
-
-That's it for the installation, if you want to you can also build it yourself using:
-The `build` folder contains a Dockerfile, instructions for installing:
-Enter the `build` directory on the command-line and execute the command below to create the `ralbum` image:
-
-```bash
-docker build --no-cache -t ralbum .
 ```
 
 

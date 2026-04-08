@@ -179,12 +179,12 @@ class App
             readfile($image->getDetailPath());
         } else {
             if (!$image->fileExists()) {
-                \Ralbum\Log::addEntry('error', 'Cannot render detail, file: ' . $this->getPath() . ' does not exist');
+                \Ralbum\Log::addEntry('error', 'Cannot render detail, file: ' . $image->getPath() . ' does not exist');
                 return;
             }
 
             if (!$image->isValidPath()) {
-                \Ralbum\Log::addEntry('error', 'Image does not have a valid path: ' . $this->getPath());
+                \Ralbum\Log::addEntry('error', 'Image does not have a valid path: ' . $image->getPath());
                 return;
             }
 

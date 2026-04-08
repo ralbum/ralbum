@@ -297,20 +297,28 @@ $(document).ready(function()
         $('#overlay #slider img').attr('src', window.appRoot + '/assets/images/loading.gif');
     }
 
-    $("#slider").swipe( {
+    (function() {
+        const slider = document.getElementById('slider');
+        let startX = null;
 
-        swipe:function(event, direction, distance, duration, fingerCount) {
-            if (fingerCount == 1) {
-                if (direction == 'left' ) {
-                    showNextImage();
-                }
-                if (direction == 'right') {
-                    showPreviousImage();
-                }
+        slider.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                startX = e.touches[0].clientX;
             }
-        },
-        fingers:$.fn.swipe.fingers.ONE
-    });
+        }, { passive: true });
+
+        slider.addEventListener('touchend', function(e) {
+            if (startX === null) return;
+
+            const deltaX = e.changedTouches[0].clientX - startX;
+            startX = null;
+
+            if (Math.abs(deltaX) < 50) return;
+
+            if (deltaX < 0) showNextImage();
+            else showPreviousImage();
+        }, { passive: true });
+    })();
 
     $(document).keydown(function(e)
     {

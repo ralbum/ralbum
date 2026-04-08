@@ -90,7 +90,7 @@ class Image extends File
 
         if (!is_dir($thumbnailDir)) {
             if (!mkdir($thumbnailDir, 0777, true)) {
-                throw new Exception('Could not create cache file directory: ' . $thumbnailDir);
+                throw new \Exception('Could not create cache file directory: ' . $thumbnailDir);
             }
         }
 
@@ -166,7 +166,7 @@ class Image extends File
 
         if (!is_dir($detailDir)) {
             if (!mkdir($detailDir, 0777, true)) {
-                throw new Exception('Could not create cache file directory: ' . $detailDir);
+                throw new \Exception('Could not create cache file directory: ' . $detailDir);
             }
         }
 

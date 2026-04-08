@@ -13,41 +13,56 @@ if (php_sapi_name() != 'cli') {
     die('This file should be run on the commandline');
 }
 
-echo "\n\nStart\n";
-echo "--------------------------\n";
-echo date('Y-m-d H:i:s') . "\n";
-
-if (Search::isSupported()) {
-    // reset search index
-    $search = new Search();
-    $search->resetIndex();
-    $search->begintTransaction();
-
-} else {
-    $search = [];
+if (!Search::isSupported()) {
+    echo 'Search not supported, requires SQLite3' . "\n";
+    return;
 }
 
 
-function updateRecursively($baseDir, $search)
+function updateRecursively($baseDir, $search, $indexed, &$processedFiles)
 {
     foreach (scandir($baseDir) as $file) {
         if (substr($file, 0, 1) == '.') {
             continue;
         }
 
-        $fullPath = $baseDir . '/' . $file;
-
-        if (is_dir($fullPath)) {
-            updateRecursively($fullPath, $search);
+        if (substr($file, -4) == '.xmp') {
             continue;
         }
 
+        $fullPath = $baseDir . '/' . $file;
+
+        if (is_dir($fullPath)) {
+            updateRecursively($fullPath, $search, $indexed, $processedFiles);
+            continue;
+        }
+
+        echo "Processing file " . $fullPath . "\n";
+
         $file = new File($fullPath);
 
+        $indexUpdateNeeded = false;
+
+        $relativePath = $file->getRelativeLocation();
+        $processedFiles[] = $relativePath;
+
         if (in_array($file->getExtension(), Setting::get('supported_extensions'))) {
+            
             $file = new Image($fullPath);
 
-            echo "Processing image " . $fullPath . "\n";
+            $filePath = $file->getPath();
+            $xmlFilePath1 = $file->getPath() . '.xmp';
+            $xmlFilePath2 = preg_replace('/\.[^.]+$/', '.xmp', $file->getPath());
+
+            if (isset($indexed[$relativePath])) {
+                foreach ([$filePath, $xmlFilePath1, $xmlFilePath2] as $filePathCheck) {
+                    if (file_exists($filePathCheck) && filemtime($filePathCheck) > $indexed[$relativePath]) {
+                        $indexUpdateNeeded = true;
+                    }
+                }
+            } else {
+                $indexUpdateNeeded = true;
+            }
 
             // to speed up the cron process the detail images are not generated if the default option is full size
             if (!Setting::get('full_size_by_default')) {
@@ -55,19 +70,39 @@ function updateRecursively($baseDir, $search)
             }
             $file->updateThumbnail();
 
+        } else {
+            $indexUpdateNeeded = true;
         }
 
-        if (Search::isSupported()) {
+        if ($indexUpdateNeeded) {
             $file->updateIndex($search);
         }
     }
 }
 
-if (Search::isSupported()) {
-    $search->commitTransaction();
+
+echo "\n\nStart\n";
+echo "--------------------------\n";
+echo date('Y-m-d H:i:s') . "\n";
+
+$processedFiles = [];
+
+// reset search index
+$search = new Search();
+$search->initialize();
+$indexed = $search->getIndexStatus();
+$search->begintTransaction();
+updateRecursively(Setting::get('image_base_dir'), $search, $indexed, $processedFiles);
+
+$toDelete = array_diff(array_keys($indexed), $processedFiles);
+foreach ($toDelete as $path) {
+    echo "Removing deleted file from index: $path\n";
+    $search->removeFromIndex($path);
 }
 
-updateRecursively(Setting::get('image_base_dir'), $search);
+
+$search->commitTransaction();
+
 
 echo "\n\nFinished\n";
 echo "--------------------------\n";

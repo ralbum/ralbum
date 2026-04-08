@@ -31,12 +31,19 @@ class Search
     public function createTable()
     {
         $this->db->exec('CREATE TABLE IF NOT EXISTS files (file_path STRING, file_name STRING, keywords STRING, file_type STRING, file_size INT, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)');
+        $this->db->exec('CREATE UNIQUE INDEX IF NOT EXISTS file_path_unique ON files(file_path)');
         $this->db->exec('CREATE INDEX IF NOT EXISTS file_type_name on files(file_type)');
+
+        try {
+            $this->db->exec('ALTER TABLE files ADD COLUMN indexed_at DATETIME');
+        } catch (\Exception $e) {
+            
+        }
+
     }
 
-    public function resetIndex()
+    public function initialize()
     {
-        $this->db->query('DROP TABLE files');
         $this->createTable();
         $this->db->busyTimeout(5000);
     }
@@ -70,6 +77,7 @@ class Search
             'lens',
             'lat',
             'long',
+            'indexed_at'
         ];
 
         $dataPlaceHolders = [];
@@ -77,11 +85,12 @@ class Search
             $dataPlaceHolders[$i] = ':' . $val;
         }
 
-        $statement = $this->db->prepare('INSERT INTO files (' . implode(', ', $dataKeys) . ') VALUES (' .  implode(', ', $dataPlaceHolders) . ' )');
+        $statement = $this->db->prepare('INSERT OR REPLACE INTO files (' . implode(', ', $dataKeys) . ') VALUES (' .  implode(', ', $dataPlaceHolders) . ' )');
 
         $statement->bindValue(':file_path', $key);
         $statement->bindValue(':file_name', $filename);
         $statement->bindValue(':file_type', $type);
+        $statement->bindValue(':indexed_at', date('Y-m-d H:i:s'));
 
         $baseDir = Setting::get('image_base_dir');
 
@@ -99,6 +108,13 @@ class Search
         }
 
         $statement->execute();
+    }
+
+    public function removeFromIndex($key)
+    {
+        $statement = $this->db->prepare('DELETE FROM files WHERE file_path = :file_path');
+        $statement->bindValue(':file_path', $key);
+        return $statement->execute();
     }
 
     public function hasFilter()
@@ -266,6 +282,16 @@ class Search
         }
         return $return;
 
+    }
+
+    public function getIndexStatus()
+    {
+        $indexed = [];
+        $result = $this->db->query('SELECT file_path, indexed_at FROM files');
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $indexed[$row['file_path']] = $row['indexed_at'];
+        }
+        return $indexed;
     }
 
     public function getImageCount()

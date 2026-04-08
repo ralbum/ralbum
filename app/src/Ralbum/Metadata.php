@@ -7,6 +7,7 @@ class Metadata
     protected $exif = false;
     protected $iptc = false;
     protected $xmp = false;
+    protected $xmp2 = false;
 
     public function __construct($path)
     {
@@ -29,6 +30,16 @@ class Metadata
             }
         }
 
+        $xmpOtherPath = preg_replace('/\.[^.]+$/', '.xmp', $path);
+
+        if (file_exists($xmpOtherPath)) {
+            try {
+                $this->xmp2 = simplexml_load_file($xmpOtherPath);
+            } catch (\Exception $e) {
+
+            }
+        }
+
     }
 
     public function getOrientation()
@@ -38,6 +49,42 @@ class Metadata
         }
 
         return false;
+    }
+
+    public function getKeywordsFromXmp($xmp)
+    {
+        $keywords = [];
+
+        $xmp->registerXPathNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+        $xmp->registerXPathNamespace('dc',  'http://purl.org/dc/elements/1.1/');
+        $xmp->registerXPathNamespace('lr',  'http://ns.adobe.com/lightroom/1.0/');
+
+        $keywordsSubject = [];
+        $nodes = $xmp->xpath('//dc:subject/rdf:Bag/rdf:li');
+        foreach ($nodes as $node) {
+            $keywordsSubject[] = (string)$node;
+        }
+
+        $keywordsHierarchicalSubject = [];
+        $nodes = $xmp->xpath('//lr:hierarchicalSubject/rdf:Bag/rdf:li');
+        foreach ($nodes as $node) {
+            $tag = (string)$node;
+            if (substr($tag, 0, 10) !== 'darktable|') {
+                $keywordsHierarchicalSubject[] = basename(str_replace('|', '/', $tag));
+            }
+        }
+
+        if (count($keywordsHierarchicalSubject) > 0) {
+            foreach ($keywordsHierarchicalSubject as $keyword) {
+                $keywords[] = (string)$keyword;
+            }
+        } else {
+            foreach ($keywordsSubject as $keyword) {
+                $keywords[] = (string)$keyword;
+            }
+        }
+
+        return $keywords;
     }
 
     public function getKeywords()
@@ -54,35 +101,11 @@ class Metadata
         }
 
         if ($this->xmp !== false) {
+            $keywords = array_merge($keywords, $this->getKeywordsFromXmp($this->xmp));
+        }
 
-            $this->xmp->registerXPathNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
-            $this->xmp->registerXPathNamespace('dc',  'http://purl.org/dc/elements/1.1/');
-            $this->xmp->registerXPathNamespace('lr',  'http://ns.adobe.com/lightroom/1.0/');
-
-            $keywordsSubject = [];
-            $nodes = $this->xmp->xpath('//dc:subject/rdf:Bag/rdf:li');
-            foreach ($nodes as $node) {
-                $keywordsSubject[] = (string)$node;
-            }
-
-            $keywordsHierarchicalSubject = [];
-            $nodes = $this->xmp->xpath('//lr:hierarchicalSubject/rdf:Bag/rdf:li');
-            foreach ($nodes as $node) {
-                $tag = (string)$node;
-                if (substr($tag, 0, 10) !== 'darktable|') {
-                    $keywordsHierarchicalSubject[] = basename(str_replace('|', '/', $tag));
-                }
-            }
-
-            if (count($keywordsHierarchicalSubject) > 0) {
-                foreach ($keywordsHierarchicalSubject as $keyword) {
-                    $keywords[] = (string)$keyword;
-                }
-            } else {
-                foreach ($keywordsSubject as $keyword) {
-                    $keywords[] = (string)$keyword;
-                }
-            }
+        if ($this->xmp2 !== false) {
+            $keywords = array_merge($keywords, $this->getKeywordsFromXmp($this->xmp2));
         }
 
         $keywords = array_values(array_unique($keywords));

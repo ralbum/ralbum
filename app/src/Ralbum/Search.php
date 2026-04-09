@@ -446,7 +446,7 @@ class Search
 
             if (strlen($camName) > 0) {
                 $cams[$model] = $camName;
-                $camsPopular[$camName] = $row['model_count'];
+                $camsPopular[$model] = ['count' => $row['model_count'], 'name' => $camName];
             }
         }
 

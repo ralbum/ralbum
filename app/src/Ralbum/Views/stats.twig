@@ -57,10 +57,10 @@
 					<th>Model</th>
 					<th>Count</th>
 				</tr>
-				{% for camera, count in popular_cameras %}
+				{% for camModel, camData in popular_cameras %}
 					<tr>
-						<td><a href="{{ base_url_ralbum }}/search?camera={{ camera }}">{{ camera }}</a></td>
-						<td>{{ count }}</td>
+						<td><a href="{{ base_url_ralbum }}/search?camera={{ camModel }}">{{ camData.name }}</a></td>
+						<td>{{ camData.count }}</td>
 					</tr>
 				{% endfor %}
 			</table>

@@ -126,6 +126,8 @@ class Image extends File
     {
         $metadata = $this->getMetadata();
 
+        $photoAnalysis = $this->getPhotoAnalysis();
+
         $metadataArray = [
             'date_taken' => $metadata->getDateTaken('Y-m-d H:i:s'),
             'make' => $metadata->getMake(),
@@ -137,7 +139,11 @@ class Image extends File
             'lens' => $metadata->getLens(),
             'lat' => $metadata->getGpsData() ? $metadata->getGpsData()[0] : null,
             'long' => $metadata->getGpsData() ? $metadata->getGpsData()[1] : null,
-            'keywords' => (array)$metadata->getKeywords()
+            'keywords' => (array)$metadata->getKeywords(),
+            'hex' => $photoAnalysis['hex'],
+            'hue' => $photoAnalysis['hue'],
+            'is_warm' => $photoAnalysis['is_warm'],
+            'sat' => $photoAnalysis['sat'],
         ];
 
         $search->setEntry($this->getRelativeLocation(), basename($this->path), __CLASS__, $metadataArray);
@@ -229,5 +235,72 @@ class Image extends File
         
         return $image;
 
+    }
+
+    /**
+     * RGB toHSL (Hue, Saturation, Lightness)
+     * Output: h (0-360), s (0-1), l (0-1)
+     */
+    function rgbToHsl(int $r, int $g, int $b): array {
+        $r /= 255;
+        $g /= 255;
+        $b /= 255;
+
+        $max = max($r, $g, $b);
+        $min = min($r, $g, $b);
+        
+        $l = ($max + $min) / 2;
+        $h = 0;
+        $s = 0;
+
+        if ($max !== $min) {
+            $d = $max - $min;
+            $s = $l > 0.5 ? $d / (2 - $max - $min) : $d / ($max + $min);
+
+            switch ($max) {
+                case $r:
+                    $h = ($g - $b) / $d + ($g < $b ? 6 : 0);
+                    break;
+                case $g:
+                    $h = ($b - $r) / $d + 2;
+                    break;
+                case $b:
+                    $h = ($r - $g) / $d + 4;
+                    break;
+            }
+            $h /= 6;
+        }
+
+        return [
+            'h' => $h * 360,
+            's' => $s,
+            'l' => $l
+        ];
+    }
+
+    function getPhotoAnalysis()
+    {
+        $img = @imagecreatefromjpeg($this->getThumbnailPath());
+        if (!$img) return null;
+
+        $tmp = imagecreatetruecolor(1, 1);
+        
+        imagecopyresampled($tmp, $img, 0, 0, 0, 0, 1, 1, imagesx($img), imagesy($img));
+
+        $rgb = imagecolorat($tmp, 0, 0);
+        $r = ($rgb >> 16) & 0xFF;
+        $g = ($rgb >> 8) & 0xFF;
+        $b = $rgb & 0xFF;
+
+        $hsl = $this->rgbToHsl($r, $g, $b);
+        
+        $isWarm = ($hsl['h'] <= 90 || $hsl['h'] >= 300);
+
+        return [
+            'hex'     => sprintf("#%02x%02x%02x", $r, $g, $b),
+            'hue'     => (int)round($hsl['h']),
+            'is_warm' => $isWarm ? 1 : 0,
+            'sat'     => round($hsl['s'], 2),
+        ];
     }
 }

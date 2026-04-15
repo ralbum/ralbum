@@ -1,5 +1,6 @@
 <?php
 
+use Ralbum\App;
 use Ralbum\Search;
 use Ralbum\Setting;
 use Ralbum\Model\Image;
@@ -18,6 +19,7 @@ if (!Search::isSupported()) {
     return;
 }
 
+Search::$forceUpdate = in_array('force', $argv);
 
 function updateRecursively($baseDir, $search, $indexed, &$processedFiles)
 {
@@ -46,7 +48,7 @@ function updateRecursively($baseDir, $search, $indexed, &$processedFiles)
         $relativePath = $file->getRelativeLocation();
         $processedFiles[] = $relativePath;
 
-        if (in_array($file->getExtension(), Setting::get('supported_extensions'))) {
+        if (in_array($file->getExtension(), App::getSupportedExtensions())) {
             
             $file = new Image($fullPath);
 
@@ -74,7 +76,7 @@ function updateRecursively($baseDir, $search, $indexed, &$processedFiles)
             $indexUpdateNeeded = true;
         }
 
-        if ($indexUpdateNeeded) {
+        if (Search::$forceUpdate || $indexUpdateNeeded) {
             $file->updateIndex($search);
         }
     }

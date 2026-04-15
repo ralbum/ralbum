@@ -213,7 +213,7 @@ class App
 
         header('Content-Type:' . mime_content_type($file->getPath()));
 
-        if (!in_array($file->getExtension(), \Ralbum\Setting::get('supported_extensions'))) {
+        if (!in_array($file->getExtension(), self::getSupportedExtensions())) {
             header('Content-Description: File Transfer');
             $filename = str_replace(["\r", "\n"], '', basename($file->getPath()));
             header('Content-Disposition: attachment; filename="' . str_replace('"', '\\"', $filename) . '"');
@@ -363,7 +363,7 @@ class App
                 $file = new \Ralbum\Model\File($fullPath);
                 $extension = $file->getExtension();
 
-                if (in_array($extension, \Ralbum\Setting::get('supported_extensions'))) {
+                if (in_array($extension, self::getSupportedExtensions())) {
                     $images[] = new \Ralbum\Model\Image($fullPath);
                 } elseif (in_array($extension, \Ralbum\Setting::get('supported_video_extensions'))) {
                     $otherFiles[] = new \Ralbum\Model\Video($fullPath);
@@ -500,9 +500,9 @@ class App
                 $file = new \Ralbum\Model\File($fullPath);
                 $extension = $file->getExtension();
 
-                if (in_array($extension, \Ralbum\Setting::get('supported_extensions'))) {
+                if (in_array($extension, self::getSupportedExtensions())) {
                     $images[] = new \Ralbum\Model\Image($fullPath);
-                } elseif (in_array($extension, \Ralbum\Setting::get('supported_video_extensions'))) {
+                } elseif (in_array($extension, self::getSupportedVideoExtensions())) {
                     $otherFiles[] = new \Ralbum\Model\Video($fullPath);
                 } else {
                     $otherFiles[] = $file;
@@ -531,7 +531,7 @@ class App
 
         $variables = $variables + $this->getDefaultListVariables($search);
 
-        $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day', 'season', 'daytime', 'weekday'];
+        $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day', 'season', 'daytime', 'weekday', 'vibe', 'style', 'color'];
 
         foreach ($forwardRequestParameters as $parameter) {
             $variables[$parameter] = isset($_REQUEST[$parameter]) ? $_REQUEST[$parameter] : false;
@@ -648,6 +648,16 @@ class App
         echo json_encode($response);
         exit;
 
+    }
+
+    public static function getSupportedExtensions() 
+    {
+        return ['jpg', 'jpeg', 'gif', 'png'];
+    }
+
+    public static function getSupportedVideoExtensions()
+    {
+        return ['mp4', 'avi', 'mov'];
     }
 
 }

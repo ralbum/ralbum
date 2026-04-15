@@ -83,6 +83,32 @@
 					<option value="evening" {% if daytime == "evening" %}selected="selected"{% endif %}>Evening</option>
 					<option value="night" {% if daytime == "night" %}selected="selected"{% endif %}>Night</option>
 				</select>
+				<h3>Vibe</h3>
+				<select name="vibe">
+					<option value=""> - vibe - </option>
+					<option value="warm" {% if vibe == "warm" %}selected="selected"{% endif %}>Warm</option>
+					<option value="cool" {% if vibe == "cool" %}selected="selected"{% endif %}>Cool</option>
+				</select>
+				<h3>Dominant color</h3>
+				<select name="color">
+					<option value=""> - color - </option>
+					<option value="red" {% if color == "red" %}selected="selected"{% endif %}>Red</option>
+					<option value="orange" {% if color == "orange" %}selected="selected"{% endif %}>Orange</option>
+					<option value="yellow" {% if color == "yellow" %}selected="selected"{% endif %}>Yellow</option>
+					<option value="green" {% if color == "green" %}selected="selected"{% endif %}>Green</option>
+					<option value="blue" {% if color == "blue" %}selected="selected"{% endif %}>Blue</option>
+					<option value="purple" {% if color == "purple" %}selected="selected"{% endif %}>Purple</option>
+					<option value="pink" {% if color == "pink" %}selected="selected"{% endif %}>Pink</option>
+				</select>
+				<h3>Style</h3>
+				<select name="style">
+					<option value=""> - style - </option>
+					<option value="monochrome" {% if style == "monochrome" %}selected="selected"{% endif %}>Monochrome</option>
+					<option value="natural" {% if style == "natural" %}selected="selected"{% endif %}>Natural</option>
+					<option value="vibrant" {% if style == "vibrant" %}selected="selected"{% endif %}>Vibrant</option>
+				</select>
+
+
 				<h3>Other ways of searching</h3>
 				<div class="feature-links">
 					<a href="{{ base_url_ralbum }}/map_view" class="feature-button">Search for images on a map</a>

@@ -13,8 +13,6 @@ class Setting
         'detail_width' => 1024,
         'full_size_by_default' => false,
         'auto_rotate' => true,
-        'supported_extensions' => ['jpg', 'jpeg', 'gif', 'png'],
-        'supported_video_extensions' => ['mp4', 'avi', 'mov'],
         'images_per_page' => 200,
         'latest_images_count' => 10,
         'random_images_count' => 10,

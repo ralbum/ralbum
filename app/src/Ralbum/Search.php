@@ -9,6 +9,8 @@ class Search
     protected $index = [];
     protected $db = null;
 
+    public static $forceUpdate = false;
+
     public $filters = [
         'camera' => 'model',
         'lens' => 'lens',
@@ -36,6 +38,10 @@ class Search
 
         try {
             $this->db->exec('ALTER TABLE files ADD COLUMN indexed_at DATETIME');
+            $this->db->exec('ALTER TABLE files ADD COLUMN hex STRING');
+            $this->db->exec('ALTER TABLE files ADD COLUMN hue INT');
+            $this->db->exec('ALTER TABLE files ADD COLUMN is_warm INT');
+            $this->db->exec('ALTER TABLE files ADD COLUMN sat DOUBLE');
         } catch (\Exception $e) {
             
         }
@@ -77,7 +83,11 @@ class Search
             'lens',
             'lat',
             'long',
-            'indexed_at'
+            'indexed_at',
+            'hex',
+            'hue',
+            'is_warm',
+            'sat'
         ];
 
         $dataPlaceHolders = [];
@@ -102,6 +112,7 @@ class Search
                     if (is_array($metadata[$val])) {
                         $metadata[$val] = implode(',', $metadata[$val]);
                     }
+
                     $statement->bindValue(':'. $val, $this->replaceDiacritics($metadata[$val]));
                 }
             }
@@ -124,6 +135,9 @@ class Search
         $filters[] = 'season';
         $filters[] = 'daytime';
         $filters[] = 'weekday';
+        $filters[] = 'vibe';
+        $filters[] = 'style';
+        $filters[] = 'color';
 
         foreach ($filters as $filter) {
             if (isset($_REQUEST[$filter]) && strlen($_REQUEST[$filter]) > 0) {
@@ -222,6 +236,58 @@ class Search
                     $query .= ' AND strftime("%H", date_taken) IN ("00","01","02","03","04","05") ';
                     break;
             }
+        }
+
+        if (isset($_REQUEST['vibe'])) {
+            switch ($_REQUEST['vibe']) {
+                case 'warm':
+                    $query .= ' AND is_warm = 1 ';
+                    break;
+                case 'cool':
+                    $query .= ' AND is_warm = 0 ';
+                    break;
+            }
+        }
+
+        if (isset($_REQUEST['color'])) {
+            switch ($_REQUEST['color']) {
+                case 'red':
+                    $query .= ' AND (hue < 20 OR hue >= 340) ';
+                    break;
+                case 'orange':
+                    $query .= ' AND hue BETWEEN 20 AND 49.99 ';
+                    break;
+                case 'yellow':
+                    $query .= ' AND hue BETWEEN 50 AND 79.99 ';
+                    break;
+                case 'green':
+                    $query .= ' AND hue BETWEEN 80 AND 159.99 ';
+                    break;
+                case 'blue':
+                    $query .= ' AND hue BETWEEN 160 AND 259.99 ';
+                    break;
+                case 'purple':
+                    $query .= ' AND hue BETWEEN 260 AND 309.99 ';
+                    break;
+                case 'pink':
+                    $query .= ' AND hue BETWEEN 310 AND 339.99 ';
+                    break;
+            }
+                
+        }    
+
+        if (isset($_REQUEST['style'])) {
+             switch ($_REQUEST['style']) {
+                case 'monochrome':
+                        $query .= ' AND sat < 0.01 ';
+                    break;
+                case 'natural':
+                    $query .= ' AND sat BETWEEN 0.01 AND 0.5 ';
+                    break;
+                case 'vibrant':
+                    $query .= ' AND sat > 0.5';
+                    break;
+             }
         }
 
         $query .= ' ORDER BY date_taken DESC';

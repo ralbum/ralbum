@@ -365,7 +365,7 @@ class App
 
                 if (in_array($extension, self::getSupportedExtensions())) {
                     $images[] = new \Ralbum\Model\Image($fullPath);
-                } elseif (in_array($extension, \Ralbum\Setting::get('supported_video_extensions'))) {
+                } elseif (in_array($extension, self::getSupportedVideoExtensions())) {
                     $otherFiles[] = new \Ralbum\Model\Video($fullPath);
                 } else {
                     if (!in_array($file->getExtension(), ['xmp', 'cache'])) {

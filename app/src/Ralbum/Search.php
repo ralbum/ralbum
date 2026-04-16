@@ -36,16 +36,29 @@ class Search
         $this->db->exec('CREATE UNIQUE INDEX IF NOT EXISTS file_path_unique ON files(file_path)');
         $this->db->exec('CREATE INDEX IF NOT EXISTS file_type_name on files(file_type)');
 
-        try {
+        if (!$this->hasColumn('indexed_at')) {
             $this->db->exec('ALTER TABLE files ADD COLUMN indexed_at DATETIME');
+        }
+
+        if (!$this->hasColumn('hex')) {
             $this->db->exec('ALTER TABLE files ADD COLUMN hex STRING');
             $this->db->exec('ALTER TABLE files ADD COLUMN hue INT');
             $this->db->exec('ALTER TABLE files ADD COLUMN is_warm INT');
             $this->db->exec('ALTER TABLE files ADD COLUMN sat DOUBLE');
-        } catch (\Exception $e) {
-            
         }
 
+    }
+
+    public function hasColumn($column)
+    {
+        $result = $this->db->query('PRAGMA table_info(files)');
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if ($row['name'] === $column) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function initialize()

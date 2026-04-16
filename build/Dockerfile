@@ -5,19 +5,10 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 RUN apt-get update \
-    && apt-get install -y \
-        libzip-dev \
-        zip \
-        libmagickwand-dev \
-        git \
-        sudo \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
+    && apt-get install -y libzip-dev zip libmagickwand-dev git sudo \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install exif gd \
+    && docker-php-ext-install exif \
     && rm -rf /var/lib/apt/lists/*
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \

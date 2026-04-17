@@ -23,7 +23,6 @@ class ImageProcessor {
     }
 
     public function fixOrientation($orientation) {
-        // Imagick en GD roteren andersom bij positieve/negatieve graden
         $deg = $this->isIm ? [3=>180, 6=>90, 8=>-90] : [3=>180, 6=>-90, 8=>90];
         if (isset($deg[$orientation])) {
             $this->rotate($deg[$orientation]);

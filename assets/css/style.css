@@ -609,6 +609,7 @@ a.image img {
 	background: #222;
 	border: 1px solid #111;
 	border-top: none;
+	opacity: 0.94;
 }
 
 #info #info_inner {

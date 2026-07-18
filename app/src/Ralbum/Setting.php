@@ -19,6 +19,7 @@ class Setting
         'view_mode_earlier_years' => 'week',
         'date_format' => 'd-m-Y H:i',
         'order_by_date_taken' => true,
+        'timezone' => 'Europe/Amsterdam',
         'twig_debug' => false
     ];
 

@@ -19,6 +19,8 @@ if (!Search::isSupported()) {
     return;
 }
 
+date_default_timezone_set(Setting::get('timezone'));
+
 Search::$forceUpdate = in_array('force', $argv);
 
 function updateRecursively($baseDir, $search, $indexed, &$processedFiles)
@@ -58,7 +60,7 @@ function updateRecursively($baseDir, $search, $indexed, &$processedFiles)
 
             if (isset($indexed[$relativePath])) {
                 foreach ([$filePath, $xmlFilePath1, $xmlFilePath2] as $filePathCheck) {
-                    if (file_exists($filePathCheck) && filemtime($filePathCheck) > $indexed[$relativePath]) {
+                    if (file_exists($filePathCheck) && filemtime($filePathCheck) > strtotime($indexed[$relativePath])) {
                         $indexUpdateNeeded = true;
                     }
                 }

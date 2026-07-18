@@ -75,6 +75,8 @@ class App
         mb_internal_encoding('UTF-8');
         setlocale(LC_ALL, "en_US.UTF-8");
 
+        date_default_timezone_set(Setting::get('timezone'));
+
         // get request path
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 

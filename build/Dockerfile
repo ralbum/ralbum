@@ -5,7 +5,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 RUN apt-get update \
-    && apt-get install -y libzip-dev zip libmagickwand-dev git sudo \
+    && apt-get install -y libzip-dev zip libmagickwand-dev git \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
     && docker-php-ext-install exif \

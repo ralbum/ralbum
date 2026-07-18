@@ -463,7 +463,7 @@ class Search
 
     function getOnThisDay()
     {
-        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND strftime("%m-%d", date_taken) = strftime("%m-%d", "now") ORDER BY date_taken DESC');
+        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND strftime("%m-%d", date_taken) = strftime("%m-%d", "now") AND date_taken < date("now", "-8 days") ORDER BY date_taken DESC');
         $result = $statement->execute();
         return $this->groupImages($result);
     }

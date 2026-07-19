@@ -523,23 +523,25 @@ a.image img {
 	image-orientation: none;
 }
 
+
+
 #image-nav {
+	display: flex;
 	height: 50px;
 	border-bottom: 1px solid #000;
 }
 
-#image-nav div {
+#image-nav > div {
+	flex: 1 1 0;
 	height : 100%;
 	background-color: #2a2a2a;
 	background-size : auto 40%;
 	background-repeat : no-repeat;
 	background-position : center;
-	float : left;
 	cursor : pointer;
 }
 
 #image-nav div#image-nav-size {
-	width : 8%;
 	background-image : url('../images/svg/size.svg');
 }
 
@@ -548,29 +550,58 @@ a.image img {
 }
 
 #image-nav div#image-nav-info {
-	width : 8%;
 	background-image : url('../images/svg/info.svg');
 }
 
 #image-nav div#image-nav-rotate {
-	width : 9%;
 	background-image : url('../images/svg/rotate.svg');
 }
 
+#image-nav-mark-delete {
+	background: url('../images/svg/delete.svg') no-repeat center;
+	background-size: auto 40%;
+	cursor: pointer;
+}
+#image-nav-mark-delete.active {
+	background-color: rgba(200, 40, 40, 0.35);
+}
+
 #image-nav div#image-nav-prev {
-	width : 25%;
+	flex: 1 1 0;
 	background-image : url('../images/svg/prev.svg');
 }
 
 #image-nav div#image-nav-next {
-	width : 25%;
+	flex: 1 1 0;
 	background-image : url('../images/svg/next.svg');
 }
 
 #image-nav div#image-nav-close {
-	width : 25%;
+	flex: 1 1 0;
 	background-image : url('../images/svg/close.svg');
 }
+
+#image-nav-rate {
+	flex: 2 1 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+}
+#image-nav-rate .star {
+	width: 22px;
+	height: 22px;
+	background: url('../images/svg/star.svg') no-repeat center;
+	background-size: contain;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+#image-nav-rate .star.filled {
+	background-image: url('../images/svg/star-active.svg');
+}
+
+
+
 
 #video-nav {
 	height: 50px;
@@ -830,30 +861,6 @@ th.th-value {
 
 	#navigation {
 		padding-bottom: 0;
-	}
-
-	#image-nav div#image-nav-size {
-		width : 16.5%;
-	}
-
-	#image-nav div#image-nav-info {
-		width : 16.5%;
-	}
-
-	#image-nav div#image-nav-rotate {
-		width : 16.5%;
-	}
-
-	#image-nav div#image-nav-prev {
-		width : 16.5%;
-	}
-
-	#image-nav div#image-nav-next {
-		width : 16.5%;
-	}
-
-	#image-nav div#image-nav-close {
-		width : 17.5%;
 	}
 
 	a.folder {

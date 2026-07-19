@@ -45,6 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function postJson(url, data) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(function (response) {
+            if (!response.ok) throw new Error('Request failed: ' + url);
+            return response.json();
+        });
+    }
+
     setLoadingImage();
 
     on('#search_activate', 'click', function () {
@@ -88,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.appRootRalbum + '/original',
             window.appRootRalbum + '/info',
             window.appRootRalbum + '/rotate',
+            window.appRootRalbum + '/rate',
         ];
 
         sourceReplacements.forEach(function (u) {
@@ -95,6 +107,32 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         return url;
+    }
+
+    function renderRatingUI(rating) {
+        const rateContainer = $('#image-nav-rate');
+        const deleteButton = $('#image-nav-mark-delete');
+
+        if (rateContainer) {
+            $$('.star', rateContainer).forEach(function (star) {
+                const value = parseInt(star.getAttribute('data-value'), 10);
+                star.classList.toggle('filled', rating > 0 && value <= rating);
+            });
+        }
+
+        if (deleteButton) {
+            deleteButton.classList.toggle('active', rating === -1);
+        }
+    }
+
+    function fetchRatingForImage(imageSource) {
+        const ratingUrl = changeImageUrl(stripQuery(imageSource), 'rate');
+
+        ajax(ratingUrl).then(function (result) {
+            renderRatingUI(result && result.rating ? result.rating : 0);
+        }).catch(function () {
+            console.log('Request for fetching rating failed');
+        });
     }
 
     on('#image-nav-rotate', 'click', function (event) {
@@ -211,6 +249,40 @@ document.addEventListener('DOMContentLoaded', function () {
         hide($('#info'));
     });
 
+    on('#image-nav-mark-delete', 'click', function () {
+        const sliderImg = $('#slider img');
+        if (!sliderImg) return;
+
+        const imageSource = stripQuery(sliderImg.getAttribute('src'));
+        const currentlyMarked = this.classList.contains('active');
+        const newRating = currentlyMarked ? 0 : -1;
+        const rateUrl = changeImageUrl(imageSource, 'rate');
+
+        postJson(rateUrl, { rating: newRating }).then(function () {
+            renderRatingUI(newRating);
+        }).catch(function () {
+            console.log('Request for marking deletion failed');
+        });
+    });
+
+    on('#image-nav-rate', 'click', function (event) {
+        const star = event.target.closest('.star');
+        if (!star) return;
+
+        const sliderImg = $('#slider img');
+        if (!sliderImg) return;
+
+        const imageSource = stripQuery(sliderImg.getAttribute('src'));
+        const value = parseInt(star.getAttribute('data-value'), 10);
+        const rateUrl = changeImageUrl(imageSource, 'rate');
+
+        postJson(rateUrl, { rating: value }).then(function () {
+            renderRatingUI(value);
+        }).catch(function () {
+            console.log('Request for rating failed');
+        });
+    });
+
     on('#image-nav-size', 'click', function () {
         var fullSize = !this.classList.contains('active');
         window.fullSize = fullSize;
@@ -258,6 +330,8 @@ document.addEventListener('DOMContentLoaded', function () {
             setLoadingImage();
 
             $('#overlay #slider img').setAttribute('src', a.getAttribute('href'));
+
+            fetchRatingForImage(a.getAttribute('href'));
 
             const navNext = $('#image-nav-next');
             const navPrev = $('#image-nav-prev');

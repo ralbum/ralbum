@@ -47,6 +47,10 @@ class Search
             $this->db->exec('ALTER TABLE files ADD COLUMN sat DOUBLE');
         }
 
+        if (!$this->hasColumn('rating')) {
+            $this->db->exec('ALTER TABLE files ADD COLUMN rating INT');
+        }
+
     }
 
     public function hasColumn($column)
@@ -132,6 +136,25 @@ class Search
         }
 
         $statement->execute();
+    }
+
+    public function getRating($key)
+    {
+        $statement = $this->db->prepare('SELECT rating FROM files WHERE file_path = :file_path');
+        $statement->bindValue(':file_path', $key);
+        $result = $statement->execute();
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+
+        return $row ? (int) $row['rating'] : 0;
+    }
+
+    public function setRating($key, $rating)
+    {
+        $statement = $this->db->prepare('UPDATE files set rating = :rating WHERE file_path = :file_path');
+        $statement->bindValue(':file_path', $key);
+        $statement->bindValue(':rating', $rating);
+        $statement->execute();
+        return $this->db->changes();
     }
 
     public function removeFromIndex($key)

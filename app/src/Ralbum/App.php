@@ -11,7 +11,7 @@ class App
     protected $setting;
     protected $parts;
 
-    protected $actions = ['list', 'detail', 'original', 'update_thumbnail', 'search', 'info', 'rotate', 'video_stream', 'map_view', 'stats'];
+    protected $actions = ['list', 'detail', 'original', 'update_thumbnail', 'search', 'info', 'rotate', 'video_stream', 'map_view', 'stats', 'rate'];
 
     public function __construct()
     {
@@ -113,6 +113,9 @@ class App
             case 'info':
                 $this->renderInfo();
                 break;
+            case 'rate':
+                $this->renderRate();
+                break;
             case 'rotate':
                 $this->renderRotate();
                 break;
@@ -125,6 +128,7 @@ class App
             case 'stats':
                 $this->renderStats();
                 break;
+
 
         }
     }
@@ -578,6 +582,33 @@ class App
     {
         unset($this->parts[1]);
         unset($this->parts[2]);
+    }
+
+    public function renderRate()
+    {
+        header('Content-type: application/json');
+
+        $this->removeActionUrlParts();
+
+        if (Search::isSupported()) {
+
+            $search = new Search();
+            $search->initialize();
+
+            $filePath = '/' . implode('/', $this->parts);
+
+            $json = file_get_contents('php://input');
+
+            if (strlen($json) > 0) {
+                $json = json_decode($json);
+                $search->setRating($filePath, (int)$json->rating);
+            }
+
+            echo json_encode(['rating' => $search->getRating($filePath)]);
+        } else {
+            echo json_encode(['result' => false, 'error' => 'Search not supported']);
+            exit;
+        }
     }
 
     public function renderInfo()

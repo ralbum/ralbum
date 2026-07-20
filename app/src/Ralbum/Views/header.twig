@@ -109,9 +109,9 @@
 				</select>
 				<h3>Rating</h3>
 				<select name="rating">
-					<option value=""> - style - </option>
+					<option value=""> - rating - </option>
 					<optgroup label="Exact rating">
-						<option value="eq_0">Geen rating</option>
+						<option value="eq_0" {% if rating == "eq_0" %}selected="selected"{% endif %}>No rating</option>
 						<option value="eq_1" {% if rating == "eq_1" %}selected="selected"{% endif %}>★☆☆☆☆</option>
 						<option value="eq_2" {% if rating == "eq_2" %}selected="selected"{% endif %}>★★☆☆☆</option>
 						<option value="eq_3" {% if rating == "eq_3" %}selected="selected"{% endif %}>★★★☆☆</option>

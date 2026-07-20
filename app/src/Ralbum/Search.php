@@ -169,6 +169,7 @@ class Search
         $filters = array_keys($this->filters);
         $filters[] = 'limit_to_keyword_search';
         $filters[] = 'season';
+        $filters[] = 'rating';
         $filters[] = 'daytime';
         $filters[] = 'weekday';
         $filters[] = 'vibe';
@@ -237,10 +238,10 @@ class Search
                 case 'summer':
                     $query .= ' AND strftime("%m", date_taken) IN ("06","07","08") ';
                 break;
-                case 'winter';
+                case 'winter':
                     $query .= ' AND strftime("%m", date_taken) IN ("12","01","02") ';
                 break;
-                case 'spring';
+                case 'spring':
                     $query .= ' AND strftime("%m", date_taken) IN ("03","04","05") ';
                 break;
                 case 'autumn':
@@ -248,6 +249,16 @@ class Search
                     break;
             }
         }
+
+        if (isset($_REQUEST['rating']) && strlen($_REQUEST['rating']) > 0) {
+             if (substr($_REQUEST['rating'], 0, 3) == 'eq_') {
+                $query .= ' AND rating = ' . (int)substr($_REQUEST['rating'], -1) . ' ';
+             }
+             if (substr($_REQUEST['rating'], 0, 4) == 'gte_') {
+                $query .= ' AND rating >= ' . (int)substr($_REQUEST['rating'], -1) . ' ';
+             }
+        }
+
 
         if (isset($_REQUEST['weekday']) && strlen($_REQUEST['weekday']) > 0) {
             foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $index => $day) {
@@ -468,6 +479,7 @@ class Search
             'image_file_size' => $this->bytesToSize($this->getImagesSize()),
             'popular_cameras' => $this->getUniqueCameras('usage'),
             'popular_lenses' => $this->getUniqueLenses('usage'),
+            'marked_for_deletion' => $this->getMarkedForDeletion(),
             'without_keywords' => $withoutKeywords
         ];
     }
@@ -559,6 +571,20 @@ class Search
         asort($cams);
 
         return $cams;
+    }
+
+    public function getMarkedForDeletion()
+    {
+        $statement = $this->db->prepare('SELECT * FROM files WHERE rating = -1 ORDER BY date_taken DESC');
+        $result = $statement->execute();
+        $files = [];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $row['folder'] = dirname($row['file_path']);
+            $row['basename'] = basename($row['file_path']);
+            $files[] = $row;
+        }
+
+        return $files;
     }
 
     public function getUniqueLenses($sortBy = 'name')

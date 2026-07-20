@@ -77,6 +77,22 @@
 					</tr>
 				{% endfor %}
 			</table>
+
+			<h1 style="padding-top: 26px;">Marked for deletion</h1>
+			<table class="stats_table">
+				<tr>
+					<th>File</th>
+				</tr>
+				{% for item in marked_for_deletion %}
+					<tr>
+						<td><a href="{{ base_url }}{{ item.folder }}#{{ item.basename }}">{{ item.file_path }}</a></td>
+					</tr>
+				{% endfor %}
+			</table>
+
+			
+
+
 		</div>
 		<div class="stats_section">
 			<h1>Keywords</h1>

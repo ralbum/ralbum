@@ -537,7 +537,7 @@ class App
 
         $variables = $variables + $this->getDefaultListVariables($search);
 
-        $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day', 'season', 'daytime', 'weekday', 'vibe', 'style', 'color'];
+        $forwardRequestParameters = ['q', 'limit_to_keyword_search', 'camera', 'lens', 'year', 'month', 'day', 'season', 'daytime', 'weekday', 'vibe', 'style', 'color', 'rating'];
 
         foreach ($forwardRequestParameters as $parameter) {
             $variables[$parameter] = isset($_REQUEST[$parameter]) ? $_REQUEST[$parameter] : false;

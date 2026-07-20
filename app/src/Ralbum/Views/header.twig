@@ -107,8 +107,25 @@
 					<option value="natural" {% if style == "natural" %}selected="selected"{% endif %}>Natural</option>
 					<option value="vibrant" {% if style == "vibrant" %}selected="selected"{% endif %}>Vibrant</option>
 				</select>
-
-
+				<h3>Rating</h3>
+				<select name="rating">
+					<option value=""> - style - </option>
+					<optgroup label="Exact rating">
+						<option value="eq_0">Geen rating</option>
+						<option value="eq_1" {% if rating == "eq_1" %}selected="selected"{% endif %}>★☆☆☆☆</option>
+						<option value="eq_2" {% if rating == "eq_2" %}selected="selected"{% endif %}>★★☆☆☆</option>
+						<option value="eq_3" {% if rating == "eq_3" %}selected="selected"{% endif %}>★★★☆☆</option>
+						<option value="eq_4" {% if rating == "eq_4" %}selected="selected"{% endif %}>★★★★☆</option>
+						<option value="eq_5" {% if rating == "eq_5" %}selected="selected"{% endif %}>★★★★★</option>
+					</optgroup>
+					<optgroup label="Minimum">
+						<option value="gte_1" {% if rating == "gte_1" %}selected="selected"{% endif %}>★ or more</option>
+						<option value="gte_2" {% if rating == "gte_2" %}selected="selected"{% endif %}>★★ or more</option>
+						<option value="gte_3" {% if rating == "gte_3" %}selected="selected"{% endif %}>★★★ or more</option>
+						<option value="gte_4" {% if rating == "gte_4" %}selected="selected"{% endif %}>★★★★ or more</option>
+					</optgroup>
+					<option value="marked">Marked for deletion</option>
+				</select>
 				<h3>Other ways of searching</h3>
 				<div class="feature-links">
 					<a href="{{ base_url_ralbum }}/map_view" class="feature-button">Search for images on a map</a>

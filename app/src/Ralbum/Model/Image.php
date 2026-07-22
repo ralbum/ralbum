@@ -145,6 +145,7 @@ class Image extends File
             'hue' => $photoAnalysis['hue'],
             'is_warm' => $photoAnalysis['is_warm'],
             'sat' => $photoAnalysis['sat'],
+            'rating' => (int)$metadata->getRating()
         ];
 
         $search->setEntry($this->getRelativeLocation(), basename($this->path), __CLASS__, $metadataArray);

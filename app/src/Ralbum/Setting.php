@@ -20,7 +20,7 @@ class Setting
         'date_format' => 'd-m-Y H:i',
         'order_by_date_taken' => true,
         'timezone' => 'Europe/Amsterdam',
-        'twig_debug' => false
+        'twig_debug' => false,
     ];
 
     public static function get($key)

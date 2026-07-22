@@ -89,7 +89,6 @@ class Search
             'keywords',
             'file_type',
             'file_size',
-            // metadata
             'shutterspeed',
             'iso',
             'date_taken',
@@ -104,7 +103,8 @@ class Search
             'hex',
             'hue',
             'is_warm',
-            'sat'
+            'sat',
+            'rating'
         ];
 
         $dataPlaceHolders = [];
@@ -112,7 +112,19 @@ class Search
             $dataPlaceHolders[$i] = ':' . $val;
         }
 
-        $statement = $this->db->prepare('INSERT OR REPLACE INTO files (' . implode(', ', $dataKeys) . ') VALUES (' .  implode(', ', $dataPlaceHolders) . ' )');
+        // we only import the rating initially
+        $updateParts = [];
+        foreach ($dataKeys as $val) {
+            if ($val !== 'file_path' && $val !== 'rating') {
+                $updateParts[] = $val . ' = excluded.' . $val;
+            }
+        }
+
+        $sql = 'INSERT INTO files (' . implode(', ', $dataKeys) . ') ' .
+            'VALUES (' . implode(', ', $dataPlaceHolders) . ') ' .
+            'ON CONFLICT(file_path) DO UPDATE SET ' . implode(', ', $updateParts);
+
+        $statement = $this->db->prepare($sql);
 
         $statement->bindValue(':file_path', $key);
         $statement->bindValue(':file_name', $filename);
@@ -120,17 +132,17 @@ class Search
         $statement->bindValue(':indexed_at', date('Y-m-d H:i:s'));
 
         $baseDir = Setting::get('image_base_dir');
-
-        $statement->bindValue(':file_size', filesize($baseDir. $key));
+        $statement->bindValue(':file_size', filesize($baseDir . $key));
 
         foreach ($dataKeys as $val) {
-            if (!in_array($val, ['file_path', 'file_name', 'file_type'])) {
+            if (!in_array($val, ['file_path', 'file_name', 'file_type', 'file_size', 'indexed_at'])) {
                 if (isset($metadata[$val])) {
                     if (is_array($metadata[$val])) {
                         $metadata[$val] = implode(',', $metadata[$val]);
                     }
-
-                    $statement->bindValue(':'. $val, $this->replaceDiacritics($metadata[$val]));
+                    $statement->bindValue(':' . $val, $this->replaceDiacritics($metadata[$val]));
+                } else {
+                    $statement->bindValue(':' . $val, null);
                 }
             }
         }

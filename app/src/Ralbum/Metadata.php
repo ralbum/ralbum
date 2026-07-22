@@ -51,6 +51,17 @@ class Metadata
         return false;
     }
 
+    public function getRatingFromXmp($xmp)
+    {
+        $xmp->registerXPathNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+        $xmp->registerXPathNamespace('xmp', 'http://ns.adobe.com/xap/1.0/');
+        $result = $xmp->xpath('//rdf:Description/@xmp:Rating');
+        if (!empty($result)) {
+            return (int) $result[0];
+        } 
+        return false;
+    }
+
     public function getKeywordsFromXmp($xmp)
     {
         $keywords = [];
@@ -112,6 +123,19 @@ class Metadata
         $keywords = array_filter(array_map('trim', $keywords));
 
         return $keywords;
+    }
+
+    public function getRating()
+    {
+        $rating = false;
+        if ($this->xmp !== false) {
+            $rating = $this->getRatingFromXmp($this->xmp);
+        }
+
+        if ($rating === false && $this->xmp2 !== false) {
+            $rating = $this->getRatingFromXmp($this->xmp2);
+        }
+        return $rating;
     }
 
     public function getRawExifData()

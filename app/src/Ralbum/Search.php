@@ -563,8 +563,22 @@ class Search
 
         $max = \Ralbum\Setting::get('random_images_count');
 
+        $result = $this->db->query('
+            SELECT rowid 
+            FROM files 
+            WHERE file_type = "Ralbum\Model\Image"
+        ');
+
+        $allRowIds = [];
+        while ($row = $result->fetchArray(SQLITE3_NUM)) {
+            $allRowIds[] = $row[0];
+        }
+
+        shuffle($allRowIds);
+        $randomIds = array_slice($allRowIds, 0, $max);
+
         $images = [];
-        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" ORDER BY RANDOM() LIMIT ' . intval($max));
+        $statement = $this->db->prepare('SELECT * FROM files WHERE rowid in(' . implode(',', $randomIds) .')');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $image = new Image($row['file_path']);

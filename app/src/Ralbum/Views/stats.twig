@@ -85,12 +85,23 @@
 				</tr>
 				{% for item in marked_for_deletion %}
 					<tr>
-						<td><a href="{{ base_url }}{{ item.folder }}#{{ item.basename }}">{{ item.file_path }}</a></td>
+						<td><a target="_blank" href="{{ base_url }}{{ item.folder }}#{{ item.basename }}">{{ item.file_path }}</a></td>
 					</tr>
 				{% endfor %}
 			</table>
 
-			
+
+			<h1 style="padding-top: 26px;">Without keywords</h1>
+			<table class="stats_table">
+				<tr>
+					<th>File</th>
+				</tr>
+				{% for item in without_keywords_list %}
+					<tr>
+						<td><a target="_blank" href="{{ base_url }}{{ item.folder }}#{{ item.basename }}">{{ item.file_path }}</a></td>
+					</tr>
+				{% endfor %}
+			</table>			
 
 
 		</div>

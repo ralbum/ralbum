@@ -431,40 +431,40 @@ class Search
 
     public function getStats()
     {
-        $statement = $this->db->prepare('SELECT * FROM files');
-        $result = $statement->execute();
-
-        $keywords = [];
+        $folderStmt = $this->db->prepare("
+            SELECT 
+                SUBSTR(file_path, 2, INSTR(SUBSTR(file_path, 2), '/') ) AS folder,
+                COUNT(*) as count
+            FROM files
+            WHERE file_path LIKE '/%/%'
+            GROUP BY folder
+        ");
+        $folderResult = $folderStmt->execute();
+        
         $folders = [];
-        $withoutKeywords = 0;
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-
-            if (substr_count($row['file_path'], '/') >= 2) {
-                $folder = substr($row['file_path'], 1, strpos($row['file_path'], '/', 1));
-                if ($folder) {
-                    if (isset($folders[$folder])) {
-                        $folders[$folder]++;
-                    } else {
-                        $folders[$folder] = 1;
-                    }
-                }
+        while ($row = $folderResult->fetchArray(SQLITE3_ASSOC)) {
+            if (!empty($row['folder'])) {
+                $folders[rtrim($row['folder'], '/')] = $row['count'];
             }
+        }
 
-            $thisKeywords = explode(',', $row['keywords']);
-            $thisKeywords = array_filter($thisKeywords, 'strlen');
+        $noKeywordsStmt = $this->db->prepare("
+            SELECT file_path, date_taken 
+            FROM files 
+            WHERE keywords IS NULL 
+            OR TRIM(keywords) = ''
+        ");
+        $noKeywordsResult = $noKeywordsStmt->execute();
 
-            if (count($thisKeywords) == 0) {
-                $withoutKeywords++;
-            } else {
-                foreach ($thisKeywords as $thisKeyword) {
-                    if (isset($keywords[$thisKeyword])) {
-                        $keywords[$thisKeyword]++;
-                    } else {
-                        $keywords[$thisKeyword] = 1;
-                    }
-                }
-            }
+        $withoutKeywordsList = [];
+        while ($row = $noKeywordsResult->fetchArray(SQLITE3_ASSOC)) {
+            $withoutKeywordsList[] = [
+                'id' => $row['id'],
+                'file_path' => $row['file_path'],
+                'folder' => dirname($row['file_path']),
+                'basename' => basename($row['file_path']),
+                'date_taken' => $row['date_taken']
+            ];
         }
 
         $oldestPhoto = $this->db->querySingle('SELECT * FROM files WHERE date_taken > "1980-01-01" ORDER BY date_taken ASC LIMIT 1', true);
@@ -480,6 +480,28 @@ class Search
 
         }
 
+        $keywordStmt = $this->db->prepare("
+            SELECT keywords 
+            FROM files 
+            WHERE keywords IS NOT NULL AND TRIM(keywords) != ''
+        ");
+        $keywordResult = $keywordStmt->execute();
+
+        $keywords = [];
+        while ($row = $keywordResult->fetchArray(SQLITE3_ASSOC)) {
+            $thisKeywords = explode(',', $row['keywords']);
+            foreach ($thisKeywords as $thisKeyword) {
+                $trimmed = trim($thisKeyword);
+                if ($trimmed !== '') {
+                    if (isset($keywords[$trimmed])) {
+                        $keywords[$trimmed]++;
+                    } else {
+                        $keywords[$trimmed] = 1;
+                    }
+                }
+            }
+        }
+
         arsort($keywords);
 
         return [
@@ -492,7 +514,8 @@ class Search
             'popular_cameras' => $this->getUniqueCameras('usage'),
             'popular_lenses' => $this->getUniqueLenses('usage'),
             'marked_for_deletion' => $this->getMarkedForDeletion(),
-            'without_keywords' => $withoutKeywords
+            'without_keywords' => count($withoutKeywordsList),
+            'without_keywords_list' => $withoutKeywordsList
         ];
     }
 

@@ -35,6 +35,7 @@ class Search
         $this->db->exec('CREATE TABLE IF NOT EXISTS files (file_path STRING, file_name STRING, keywords STRING, file_type STRING, file_size INT, date_taken DATETIME, make STRING, model STRING, aperture DOUBLE, shutterspeed DOUBLE, iso INT, focal_length DOUBLE, lens STRING, lat DOUBLE, long DOUBLE)');
         $this->db->exec('CREATE UNIQUE INDEX IF NOT EXISTS file_path_unique ON files(file_path)');
         $this->db->exec('CREATE INDEX IF NOT EXISTS file_type_name on files(file_type)');
+        $this->db->exec('CREATE INDEX IF NOT EXISTS idx_type_date ON files(file_type, date_taken)');
 
         if (!$this->hasColumn('indexed_at')) {
             $this->db->exec('ALTER TABLE files ADD COLUMN indexed_at DATETIME');
@@ -533,17 +534,63 @@ class Search
 
     function getOnThisDay()
     {
-        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND strftime("%m-%d", date_taken) = strftime("%m-%d", "now") AND date_taken < date("now", "-8 days") ORDER BY date_taken DESC');
+        $currentYear = (int) date('Y');
+        $monthDay = date('m-d');
+
+        $whereClauses = [];
+        for ($year = $currentYear - 1; $year >= 2000; $year--) {
+            $whereClauses[] = "date_taken LIKE '{$year}-{$monthDay}%'";
+        }
+
+        if (empty($whereClauses)) {
+            return [];
+        }
+
+        $sql = 'SELECT * FROM files 
+                WHERE file_type = "Ralbum\Model\Image" 
+                AND (' . implode(' OR ', $whereClauses) . ') 
+                ORDER BY date_taken DESC';
+
+        $statement = $this->db->prepare($sql);
         $result = $statement->execute();
+
         return $this->groupImages($result);
     }
 
     function getFromThisWeek()
     {
-        $statement = $this->db->prepare('SELECT * FROM files WHERE file_type = "Ralbum\Model\Image" AND strftime("%W", date_taken) = strftime("%W", "now") AND date_taken < date("now", "-8 days") ORDER BY date_taken DESC');
+        $currentYear = (int) date('Y');
+
+        $mondayTimestamp = (date('w') == 0) 
+            ? strtotime('last monday') 
+            : strtotime('monday this week');
+
+        $startMonthDay = date('m-d', $mondayTimestamp);
+        $endMonthDay   = date('m-d', strtotime('+6 days', $mondayTimestamp));
+
+        $whereClauses = [];
+
+        for ($year = $currentYear - 1; $year >= 2000; $year--) {
+            $start = "'{$year}-{$startMonthDay} 00:00:00'";
+            $end   = "'{$year}-{$endMonthDay} 23:59:59'";
+            $whereClauses[] = "(date_taken BETWEEN {$start} AND {$end})";
+        }
+
+        if (empty($whereClauses)) {
+            return [];
+        }
+
+        $sql = 'SELECT * FROM files 
+                WHERE file_type = "Ralbum\Model\Image" 
+                  AND (' . implode(' OR ', $whereClauses) . ') 
+                ORDER BY date_taken DESC';
+
+
+        $statement = $this->db->prepare($sql);
         $result = $statement->execute();
+
         return $this->groupImages($result);
-    }
+    }   
 
     function groupImages($result)
     {

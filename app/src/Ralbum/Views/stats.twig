@@ -43,11 +43,11 @@
 					<td>{{ without_keywords }}</td>
 				</tr>
 				<tr>
-					<td>Oldest photo is <a href="{{ base_url }}{{ oldest_photo.folder }}#{{ oldest_photo.basename }}">{{ oldest_photo.file_name }}</a>, taken on {{ oldest_photo.date_taken|date('d-m-Y') }}</td>
+					<td>Oldest photo is <a target="_blank" href="{{ base_url }}{{ oldest_photo.folder }}#{{ oldest_photo.basename }}">{{ oldest_photo.file_name }}</a>, taken on {{ oldest_photo.date_taken|date('d-m-Y') }}</td>
 					<td></td>
 				</tr>
 				<tr>
-					<td>Most recent photo is <a href="{{ base_url }}{{ most_recent_photo.folder }}#{{ most_recent_photo.basename }}">{{ most_recent_photo.file_name }}</a>, taken on {{ most_recent_photo.date_taken|date('d-m-Y') }}</td>
+					<td>Most recent photo is <a target="_blank" href="{{ base_url }}{{ most_recent_photo.folder }}#{{ most_recent_photo.basename }}">{{ most_recent_photo.file_name }}</a>, taken on {{ most_recent_photo.date_taken|date('d-m-Y') }}</td>
 					<td></td>
 				</tr>
 			</table>
@@ -59,7 +59,7 @@
 				</tr>
 				{% for camModel, camData in popular_cameras %}
 					<tr>
-						<td><a href="{{ base_url_ralbum }}/search?camera={{ camModel }}">{{ camData.name }}</a></td>
+						<td><a target="_blank" href="{{ base_url_ralbum }}/search?camera={{ camModel }}">{{ camData.name }}</a></td>
 						<td>{{ camData.count }}</td>
 					</tr>
 				{% endfor %}
@@ -72,7 +72,7 @@
 				</tr>
 				{% for lens, count in popular_lenses %}
 					<tr>
-						<td><a href="{{ base_url_ralbum }}/search?lens={{ lens }}">{{ lens }}</a></td>
+						<td><a target="_blank" href="{{ base_url_ralbum }}/search?lens={{ lens }}">{{ lens }}</a></td>
 						<td>{{ count }}</td>
 					</tr>
 				{% endfor %}
@@ -114,7 +114,7 @@
 				</tr>
 				{% for keyword, count in keywords %}
 					<tr>
-						<td><a href="{{ base_url_ralbum }}/search?q={{ keyword }}&limit_to_keyword_search=on">{{ keyword }}</a></td>
+						<td><a target="_blank" href="{{ base_url_ralbum }}/search?q={{ keyword }}&limit_to_keyword_search=on">{{ keyword }}</a></td>
 						<td>{{ count }}</td>
 					</tr>
 				{% endfor %}

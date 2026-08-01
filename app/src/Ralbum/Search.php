@@ -213,10 +213,10 @@ class Search
             foreach ($words as $i => $word) {
                 if (substr($word, 0, 1) == '-') {
                     $keywordSearches[] = ' keywords NOT LIKE :word' . $i . ' ';
-                    $filenameSearches[] = ' file_name NOT LIKE :word' . $i . ' ';
+                    $filenameSearches[] = ' file_path NOT LIKE :word' . $i . ' ';
                 } else {
                     $keywordSearches[] = ' keywords LIKE :word' . $i . ' ';
-                    $filenameSearches[] = ' file_name LIKE :word' . $i . ' ';
+                    $filenameSearches[] = ' file_path LIKE :word' . $i . ' ';
                 }
             }
 
